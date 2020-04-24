@@ -1,2 +1,2 @@
 # seraphwu
-https://seraphwu.github.io/SDGundamRetsuden
+[https://seraphwu.github.io/SDGundamRetsuden]
