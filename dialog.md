@@ -59,4 +59,3 @@ graph LR
     style Onto fill:#orange,stroke:#333,stroke-width:2px
     style KG fill:#orange,stroke:#333,stroke-width:2px
     style SW fill:#orange,stroke:#333,stroke-width:2px
-```
