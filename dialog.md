@@ -22,8 +22,8 @@ graph LR
         Thes[索引典 Thesaurus]
         Onto[本體論 Ontology]
         KG[知識圖譜 Knowledge Graph]
-        SW[語義網 Semantic Web (框架/原則)]  <-- 移除這裡的 'end'
-    end  <-- 這個 'end' 是關閉 subgraph 的，它必須在單獨一行
+        SW[語義網 Semantic Web (框架/原則)]
+    end
 
     Thes -->|提供詞彙控制| NLU
     Onto -->|定義語義模型| NLU
