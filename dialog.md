@@ -23,7 +23,7 @@ graph LR
         Onto[本體論 Ontology]
         KG[知識圖譜 Knowledge Graph]
         SW[語義網 Semantic Web (框架/原則)]
-    end
+    end  <-- **這裡！將 'end' 移到新的一行**
 
     Thes -->|提供詞彙控制| NLU
     Onto -->|定義語義模型| NLU
