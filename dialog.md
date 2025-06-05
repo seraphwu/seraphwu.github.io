@@ -1,4 +1,3 @@
-```mermaid
 graph LR
     subgraph AI應用領域
         direction LR
@@ -22,7 +21,7 @@ graph LR
         Thes[索引典 Thesaurus]
         Onto[本體論 Ontology]
         KG[知識圖譜 Knowledge Graph]
-        SW[語義網 Semantic Web (框架/原則)]
+        SW[語義網 Semantic Web]
     end
 
     Thes -->|提供詞彙控制| NLU
