@@ -340,7 +340,16 @@
                 </div>
 
                 <div class="mt-6 p-4 bg-gray-50 rounded-lg">
-                    <h3 class="font-bold text-gray-800 mb-2">分享與回饋 (最後 5 分鐘)</h3>
+                    <div class="flex flex-wrap justify-between items-center mb-2 gap-2">
+                        <h3 class="font-bold text-gray-800">分享與回饋 (最後 5 分鐘)</h3>
+                        <div class="flex items-center gap-3 bg-white px-3 py-1 rounded-md border border-gray-200 shadow-sm">
+                            <span id="timer-share" class="font-mono text-lg stanford-red-text font-bold">05:00</span>
+                            <div class="flex gap-1">
+                                <button onclick="startTimer('share', 300)" class="text-xs bg-gray-800 text-white px-3 py-1.5 rounded hover:bg-gray-700 transition-colors">開始</button>
+                                <button onclick="resetTimer('share', 300)" class="text-xs border border-gray-300 text-gray-600 px-2 py-1.5 rounded hover:bg-gray-100 transition-colors">↺</button>
+                            </div>
+                        </div>
+                    </div>
                     <ul class="list-disc list-inside text-gray-600 text-sm">
                         <li>把草圖秀給夥伴看。</li>
                         <li><strong>Don't Sell</strong>：不要推銷，要傾聽。</li>
@@ -471,7 +480,7 @@
         </section>
 
         <!-- SECTION: AWARDS MODAL (Hidden by default) -->
-        <div id="awards-modal" class="w-full h-full fixed inset-0 bg-[#8C1515] bg-opacity-90 z-50 hidden flex items-center justify-center animate-fade-in">
+        <div id="awards-modal" class="fixed inset-0 bg-black bg-opacity-90 z-50 hidden flex items-center justify-center animate-fade-in">
             <div class="text-center text-white max-w-2xl px-4">
                 <h2 class="text-6xl font-bold mb-6 text-yellow-400">🏆 頒獎典禮</h2>
                 <h3 class="text-3xl mb-8">感謝大家這學期的投入！</h3>
@@ -502,9 +511,7 @@
 
     <!-- Audio Elements -->
     <!-- Alarm: Mechanical Clock Ring (CC0/Google Sounds) -->
-    <audio id="alarm-sound" src="https://actions.google.com/sounds/v1/alarms/mechanical_clock_ring.ogg" preload="auto">
-    <audio id="alarm-sound" src="https://actions.google.com/sounds/v1/alarms/alarm_clock.ogg" preload="auto">
-</audio>
+    <audio id="alarm-sound" src="https://actions.google.com/sounds/v1/alarms/mechanical_clock_ring.ogg" preload="auto"></audio>
     <!-- BG Music: Neutral Lo-Fi - 'Empty Mind' (CC0 from Pixabay CDN) -->
     <audio id="bg-music" src="https://cdn.pixabay.com/audio/2022/05/27/audio_1808fbf07a.mp3" loop preload="auto"></audio>
 
