@@ -203,19 +203,22 @@
             <div class="bg-white p-6 rounded-xl card-shadow border-t-4 border-red-800">
                 <div class="flex justify-between items-center mb-4">
                     <h2 class="text-2xl font-bold text-gray-800">STEP 1: 同理心 (Empathize)</h2>
-                    <span class="bg-red-100 text-red-800 text-xs px-2 py-1 rounded-full font-bold">總時長: 8 min</span>
+                    <span class="bg-red-100 text-red-800 text-xs px-2 py-1 rounded-full font-bold">總時長: 約 16-20 min</span>
                 </div>
                 <p class="text-gray-600 mb-6">
                     設計的起點是理解。請你的夥伴拿出錢包，或開啟常用的支付 App。我們的目標是問出「故事」，而不僅僅是功能介紹。
+                    請依照下方步驟，<strong>每人進行兩輪訪談（互換角色）</strong>。
                 </p>
 
                 <!-- Interactive Timer Section -->
-                <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+                <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+                    <!-- Guide Left -->
                     <div class="space-y-4">
                         <h3 class="font-bold text-lg">訪談指南</h3>
                         
                         <div class="bg-gray-50 p-4 rounded-lg">
-                            <h4 class="font-bold text-gray-700 mb-2">第 1 輪：廣度訪談 (4 min)</h4>
+                            <h4 class="font-bold text-gray-700 mb-2">第 1 輪：廣度訪談 (4 min/人)</h4>
+                            <p class="text-xs text-gray-500 mb-2">請夥伴打開錢包介紹物品。</p>
                             <ul class="list-disc list-inside text-sm text-gray-600 space-y-1">
                                 <li>這裡面有什麼？</li>
                                 <li>這張舊收據有什麼故事？</li>
@@ -224,7 +227,8 @@
                         </div>
 
                         <div class="bg-gray-50 p-4 rounded-lg">
-                            <h4 class="font-bold text-gray-700 mb-2">第 2 輪：深度挖掘 (4 min)</h4>
+                            <h4 class="font-bold text-gray-700 mb-2">第 2 輪：深度挖掘 (4 min/人)</h4>
+                            <p class="text-xs text-gray-500 mb-2">尋找情緒與痛點，問「為什麼」。</p>
                             <ul class="list-disc list-inside text-sm text-gray-600 space-y-1">
                                 <li>為什麼結帳時你會感到焦慮？</li>
                                 <li>為什麼這張照片對你很重要？</li>
@@ -233,13 +237,37 @@
                         </div>
                     </div>
 
-                    <div class="flex flex-col items-center justify-center bg-gray-100 rounded-xl p-8">
-                        <div class="text-6xl font-mono font-bold stanford-red-text timer-display mb-6" id="timer-empathize">04:00</div>
-                        <div class="flex space-x-4">
-                            <button onclick="startTimer('empathize', 240)" class="bg-gray-800 text-white px-6 py-2 rounded hover:bg-gray-700">開始計時</button>
-                            <button onclick="resetTimer('empathize', 240)" class="bg-white border border-gray-300 text-gray-700 px-6 py-2 rounded hover:bg-gray-50">重置</button>
+                    <!-- Timer Control Right -->
+                    <div class="flex flex-col items-center justify-start bg-gray-100 rounded-xl p-8">
+                        <!-- Dynamic Status Text -->
+                        <div id="status-empathize" class="text-xl font-bold text-red-800 mb-4 text-center min-h-[30px] animate-pulse">
+                            準備開始
                         </div>
-                        <p class="text-sm text-gray-500 mt-4 text-center">響鈴後請交換角色，再按一次開始。</p>
+
+                        <div class="text-6xl font-mono font-bold stanford-red-text timer-display mb-6" id="timer-empathize">04:00</div>
+                        
+                        <div class="grid grid-cols-2 gap-3 w-full max-w-md">
+                            <button onclick="startTimer('empathize', 240, '第 1 輪：A 訪問 B (廣度訪談)')" class="bg-gray-800 text-white px-2 py-2 text-sm rounded hover:bg-gray-700 flex flex-col items-center">
+                                <span class="font-bold">1. A 訪 B</span>
+                                <span class="text-xs text-gray-400">4 分鐘</span>
+                            </button>
+                            <button onclick="startTimer('empathize', 240, '第 1 輪交換：B 訪問 A (廣度訪談)')" class="bg-gray-600 text-white px-2 py-2 text-sm rounded hover:bg-gray-500 flex flex-col items-center">
+                                <span class="font-bold">2. B 訪 A (交換)</span>
+                                <span class="text-xs text-gray-300">4 分鐘</span>
+                            </button>
+                            <button onclick="startTimer('empathize', 240, '第 2 輪：A 訪問 B (深度挖掘)')" class="bg-gray-800 text-white px-2 py-2 text-sm rounded hover:bg-gray-700 flex flex-col items-center">
+                                <span class="font-bold">3. A 訪 B</span>
+                                <span class="text-xs text-gray-400">4 分鐘 (深度)</span>
+                            </button>
+                            <button onclick="startTimer('empathize', 240, '第 2 輪交換：B 訪問 A (深度挖掘)')" class="bg-gray-600 text-white px-2 py-2 text-sm rounded hover:bg-gray-500 flex flex-col items-center">
+                                <span class="font-bold">4. B 訪 A (交換)</span>
+                                <span class="text-xs text-gray-300">4 分鐘 (深度)</span>
+                            </button>
+                        </div>
+                        
+                        <div class="mt-4">
+                            <button onclick="resetTimer('empathize', 240, '準備開始')" class="bg-white border border-gray-300 text-gray-700 px-6 py-1 text-sm rounded hover:bg-gray-50">重置計時</button>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -267,7 +295,7 @@
                              <span class="font-bold text-gray-700">思考時間</span>
                              <div class="flex items-center gap-3">
                                 <span id="timer-define" class="font-mono text-xl stanford-red-text font-bold">03:00</span>
-                                <button onclick="startTimer('define', 180)" class="text-xs bg-gray-800 text-white px-2 py-1 rounded">開始</button>
+                                <button onclick="startTimer('define', 180, '思考觀點聲明')" class="text-xs bg-gray-800 text-white px-2 py-1 rounded">開始</button>
                              </div>
                         </div>
 
@@ -333,7 +361,7 @@
                     <h3 class="text-xl mb-4 font-light tracking-widest">瘋狂發想時間</h3>
                     <div class="text-7xl font-mono font-bold text-yellow-400 timer-display mb-6" id="timer-ideate">10:00</div>
                     <div class="flex space-x-4">
-                        <button onclick="startTimer('ideate', 600)" class="bg-yellow-500 text-gray-900 px-8 py-3 rounded-full font-bold hover:bg-yellow-400 transition-transform hover:scale-105">開始計時</button>
+                        <button onclick="startTimer('ideate', 600, '發想開始')" class="bg-yellow-500 text-gray-900 px-8 py-3 rounded-full font-bold hover:bg-yellow-400 transition-transform hover:scale-105">開始計時</button>
                         <button onclick="resetTimer('ideate', 600)" class="bg-transparent border border-gray-500 text-gray-300 px-6 py-3 rounded-full hover:bg-gray-800">重置</button>
                     </div>
                     <p class="text-gray-400 text-sm mt-6">💡 提示：可以是實體錢包，也可以是未來的 App 介面。</p>
@@ -341,16 +369,17 @@
 
                 <div class="mt-6 p-4 bg-gray-50 rounded-lg">
                     <div class="flex flex-wrap justify-between items-center mb-2 gap-2">
-                        <h3 class="font-bold text-gray-800">分享與回饋 (最後 5 分鐘)</h3>
+                        <h3 class="font-bold text-gray-800">分享與回饋 (最後 5 分鐘 - 兩人共用)</h3>
                         <div class="flex items-center gap-3 bg-white px-3 py-1 rounded-md border border-gray-200 shadow-sm">
                             <span id="timer-share" class="font-mono text-lg stanford-red-text font-bold">05:00</span>
                             <div class="flex gap-1">
-                                <button onclick="startTimer('share', 300)" class="text-xs bg-gray-800 text-white px-3 py-1.5 rounded hover:bg-gray-700 transition-colors">開始</button>
+                                <button onclick="startTimer('share', 300, '分享與回饋 (兩人共用)')" class="text-xs bg-gray-800 text-white px-3 py-1.5 rounded hover:bg-gray-700 transition-colors">開始</button>
                                 <button onclick="resetTimer('share', 300)" class="text-xs border border-gray-300 text-gray-600 px-2 py-1.5 rounded hover:bg-gray-100 transition-colors">↺</button>
                             </div>
                         </div>
                     </div>
                     <ul class="list-disc list-inside text-gray-600 text-sm">
+                        <li><strong>時間分配</strong>：建議一人 2.5 分鐘，快速交換意見。</li>
                         <li>把草圖秀給夥伴看。</li>
                         <li><strong>Don't Sell</strong>：不要推銷，要傾聽。</li>
                         <li>紀錄夥伴說的話：「我喜歡...」、「如果...會更好」。</li>
@@ -360,8 +389,8 @@
             </div>
 
             <div class="flex justify-between">
-                <button onclick="navTo('define')" class="text-gray-500 hover:text-gray-800">⬅ 上一步</button>
-                <button onclick="navTo('prototype')" class="text-gray-600 hover:text-red-800 font-medium">下一步：製作原型 ➔</button>
+                <button onclick="navTo('ideate')" class="text-gray-500 hover:text-gray-800">⬅ 上一步</button>
+                <button onclick="navTo('test')" class="text-gray-600 hover:text-red-800 font-medium">下一步：測試驗收 ➔</button>
             </div>
         </section>
 
@@ -405,7 +434,7 @@
                     <h3 class="text-xl mb-2 font-bold text-gray-700">動手製作時間</h3>
                     <div class="text-6xl font-mono font-bold text-gray-800 timer-display mb-6" id="timer-prototype">25:00</div>
                     <div class="flex space-x-4">
-                        <button onclick="startTimer('prototype', 1500)" class="stanford-red-bg text-white px-8 py-3 rounded shadow hover:opacity-90">開始製作</button>
+                        <button onclick="startTimer('prototype', 1500, '原型製作開始')" class="stanford-red-bg text-white px-8 py-3 rounded shadow hover:opacity-90">開始製作</button>
                         <button onclick="resetTimer('prototype', 1500)" class="bg-white border border-gray-300 text-gray-700 px-6 py-3 rounded hover:bg-gray-50">重置</button>
                     </div>
                 </div>
@@ -455,7 +484,7 @@
                     <div class="flex flex-col items-center justify-center bg-gray-100 rounded-xl p-8">
                         <div class="text-6xl font-mono font-bold stanford-red-text timer-display mb-6" id="timer-test">08:00</div>
                         <div class="flex space-x-4">
-                            <button onclick="startTimer('test', 480)" class="bg-gray-800 text-white px-6 py-2 rounded hover:bg-gray-700">開始測試</button>
+                            <button onclick="startTimer('test', 480, '測試開始')" class="bg-gray-800 text-white px-6 py-2 rounded hover:bg-gray-700">開始測試</button>
                             <button onclick="resetTimer('test', 480)" class="bg-white border border-gray-300 text-gray-700 px-6 py-2 rounded hover:bg-gray-50">重置</button>
                         </div>
                     </div>
@@ -474,21 +503,118 @@
                 <button onclick="navTo('prototype')" class="text-gray-500 hover:text-gray-800">⬅ 上一步</button>
                 <div class="text-right">
                     <p class="text-sm text-gray-500 mb-1">完成所有步驟了嗎？</p>
-                    <button onclick="showAwards()" class="stanford-red-bg text-white px-6 py-2 rounded font-bold hover:opacity-90">進入頒獎典禮 🏆</button>
+                    <button onclick="showRecap()" class="stanford-red-bg text-white px-6 py-2 rounded font-bold hover:opacity-90">總結與頒獎 ➔</button>
                 </div>
             </div>
         </section>
 
+        <!-- SECTION: RECAP MODAL -->
+        <div id="recap-modal" class="fixed inset-0 bg-gray-900 z-50 hidden flex items-center justify-center animate-fade-in">
+            <div class="text-center text-white max-w-5xl px-6 w-full">
+                <h2 class="text-4xl font-bold mb-2 text-white">課程核心回顧</h2>
+                <p class="text-gray-400 mb-8">從紙上原型回到數位圖像設計</p>
+
+                <!-- Process Flow Large/Flowchart -->
+                <div class="flex flex-wrap justify-center items-center gap-4 md:gap-6 mb-12">
+                    <!-- Step 1 -->
+                    <div class="flex flex-col items-center group">
+                        <div class="w-20 h-20 rounded-full border-4 border-red-500 bg-gray-800 flex items-center justify-center text-2xl font-bold text-white shadow-lg group-hover:scale-110 transition-transform">
+                            同理
+                        </div>
+                        <span class="text-xs text-gray-400 mt-2 uppercase tracking-wider">Empathize</span>
+                    </div>
+                    
+                    <!-- Arrow -->
+                    <div class="text-3xl text-gray-600">➔</div>
+
+                    <!-- Step 2 -->
+                    <div class="flex flex-col items-center group">
+                        <div class="w-20 h-20 rounded-full border-4 border-red-500 bg-gray-800 flex items-center justify-center text-2xl font-bold text-white shadow-lg group-hover:scale-110 transition-transform">
+                            定義
+                        </div>
+                        <span class="text-xs text-gray-400 mt-2 uppercase tracking-wider">Define</span>
+                    </div>
+
+                    <!-- Arrow -->
+                    <div class="text-3xl text-gray-600">➔</div>
+
+                    <!-- Step 3 -->
+                    <div class="flex flex-col items-center group">
+                        <div class="w-20 h-20 rounded-full border-4 border-red-500 bg-gray-800 flex items-center justify-center text-2xl font-bold text-white shadow-lg group-hover:scale-110 transition-transform">
+                            發想
+                        </div>
+                        <span class="text-xs text-gray-400 mt-2 uppercase tracking-wider">Ideate</span>
+                    </div>
+
+                    <!-- Arrow -->
+                    <div class="text-3xl text-gray-600">➔</div>
+
+                    <!-- Step 4 -->
+                    <div class="flex flex-col items-center group">
+                        <div class="w-20 h-20 rounded-full border-4 border-red-500 bg-gray-800 flex items-center justify-center text-2xl font-bold text-white shadow-lg group-hover:scale-110 transition-transform">
+                            原型
+                        </div>
+                        <span class="text-xs text-gray-400 mt-2 uppercase tracking-wider">Prototype</span>
+                    </div>
+
+                    <!-- Arrow -->
+                    <div class="text-3xl text-gray-600">➔</div>
+
+                    <!-- Step 5 -->
+                    <div class="flex flex-col items-center group">
+                        <div class="w-20 h-20 rounded-full border-4 border-red-500 bg-gray-800 flex items-center justify-center text-2xl font-bold text-white shadow-lg group-hover:scale-110 transition-transform">
+                            測試
+                        </div>
+                        <span class="text-xs text-gray-400 mt-2 uppercase tracking-wider">Test</span>
+                    </div>
+                </div>
+
+                <!-- The 3 Key Takeaways -->
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-6 text-left mb-12">
+                    
+                    <!-- Point 1 -->
+                    <div class="bg-gray-800 p-6 rounded-xl border border-gray-700 hover:border-blue-500 transition-colors group">
+                        <div class="text-4xl mb-4 group-hover:scale-110 transition-transform origin-left">📡</div>
+                        <h3 class="text-xl font-bold text-blue-400 mb-3">1. 資訊怎麼傳播？</h3>
+                        <p class="text-gray-300 text-sm leading-relaxed">
+                            透過<strong>「視覺化」</strong>與<strong>「實體化」</strong>。<br>
+                            圖像不只是裝飾，而是溝通介面。我們用草圖與模型 (Low-Fi) 快速傳遞概念，比千言萬語更直覺 (Show, Don't Tell)。
+                        </p>
+                    </div>
+
+                    <!-- Point 2 -->
+                    <div class="bg-gray-800 p-6 rounded-xl border border-gray-700 hover:border-yellow-500 transition-colors group">
+                        <div class="text-4xl mb-4 group-hover:scale-110 transition-transform origin-left">🎨</div>
+                        <h3 class="text-xl font-bold text-yellow-400 mb-3">2. 為何這麼設計？</h3>
+                        <p class="text-gray-300 text-sm leading-relaxed">
+                            所有的設計決策，都源自於<strong>「使用者的故事」</strong>。<br>
+                            不是為了做而做，是因為你在訪談中發現了他的痛點與需求 (Insights)，才產出了對應的功能。
+                        </p>
+                    </div>
+
+                    <!-- Point 3 -->
+                    <div class="bg-gray-800 p-6 rounded-xl border border-gray-700 hover:border-red-500 transition-colors group">
+                        <div class="text-4xl mb-4 group-hover:scale-110 transition-transform origin-left">🧩</div>
+                        <h3 class="text-xl font-bold text-red-400 mb-3">3. 解決什麼問題？</h3>
+                        <p class="text-gray-300 text-sm leading-relaxed">
+                            不僅是解決「功能性」問題，更是解決<strong>「心理層面」</strong>的問題。<br>
+                            我們設計的不是一個錢包，而是一種讓使用者感到安全、效率或被重視的體驗。
+                        </p>
+                    </div>
+
+                </div>
+
+                <button onclick="showAwards()" class="stanford-red-bg text-white px-10 py-4 rounded-full font-bold shadow-lg hover:opacity-90 hover:scale-105 transition-transform text-lg">
+                    前往頒獎典禮 🏆
+                </button>
+            </div>
+        </div>
+
         <!-- SECTION: AWARDS MODAL (Hidden by default) -->
-        <div id="awards-modal" class="fixed inset-0 bg-black bg-opacity-90 z-50 hidden flex items-center justify-center animate-fade-in">
+        <div id="awards-modal" class="fixed inset-0 bg-[#8C1515] z-50 hidden flex items-center justify-center animate-fade-in">
             <div class="text-center text-white max-w-2xl px-4">
                 <h2 class="text-6xl font-bold mb-6 text-yellow-400">🏆 頒獎典禮</h2>
                 <h3 class="text-3xl mb-8">感謝大家這學期的投入！</h3>
-                <p class="text-xl text-gray-300 mb-10 leading-relaxed">
-                    記住今天的流程：<br>
-                    同理 ➔ 定義 ➔ 發想 ➔ 原型 ➔ 測試<br><br>
-                    好的數位設計，始於對人的理解。
-                </p>
                 <div class="flex justify-center gap-6 text-6xl mb-12">
                     <span class="animate-bounce" style="animation-delay: 0s;">🥇</span>
                     <span class="animate-bounce" style="animation-delay: 0.2s;">🥈</span>
@@ -558,7 +684,7 @@
             return `${m}:${s}`;
         }
 
-        function startTimer(id, duration) {
+        function startTimer(id, duration, labelText = '') {
             // Stop existing timer if any
             if (timerIntervals[id]) clearInterval(timerIntervals[id]);
             
@@ -575,6 +701,16 @@
             alarm.load();
 
             const display = document.getElementById(`timer-${id}`);
+            
+            // Update Label if provided
+            if (labelText) {
+                const statusDisplay = document.getElementById(`status-${id}`);
+                if (statusDisplay) {
+                    statusDisplay.textContent = labelText;
+                    statusDisplay.classList.remove('animate-pulse'); // Remove pulse while running
+                }
+            }
+
             let timeLeft = duration;
             
             // Immediate update
@@ -594,16 +730,29 @@
                     bgMusic.currentTime = 0;
                     alarm.currentTime = 0;
                     alarm.play().catch(e => console.log("Alarm play failed", e));
+                    
+                    // Re-animate status label to grab attention
+                    const statusDisplay = document.getElementById(`status-${id}`);
+                    if (statusDisplay) statusDisplay.classList.add('animate-pulse');
                 }
             }, 1000);
         }
 
-        function resetTimer(id, duration) {
+        function resetTimer(id, duration, labelText = '') {
             if (timerIntervals[id]) clearInterval(timerIntervals[id]);
             const display = document.getElementById(`timer-${id}`);
             display.textContent = formatTime(duration);
             display.classList.remove('animate-pulse');
             display.style.color = ''; // Reset color
+
+            // Reset Label if provided
+            if (labelText) {
+                const statusDisplay = document.getElementById(`status-${id}`);
+                if (statusDisplay) {
+                    statusDisplay.textContent = labelText;
+                    statusDisplay.classList.add('animate-pulse'); // Pulse again for "Ready" state
+                }
+            }
             
             // Reset Audios
             const bgMusic = document.getElementById('bg-music');
@@ -635,8 +784,13 @@
             resultDiv.classList.add('shadow-md');
         }
 
-        // --- 4. Awards Logic ---
+        // --- 4. Awards & Recap Logic ---
+        function showRecap() {
+            document.getElementById('recap-modal').classList.remove('hidden');
+        }
+
         function showAwards() {
+            document.getElementById('recap-modal').classList.add('hidden');
             document.getElementById('awards-modal').classList.remove('hidden');
         }
 
