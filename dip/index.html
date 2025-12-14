@@ -11,11 +11,11 @@
         
         body {
             font-family: 'Noto Sans TC', sans-serif;
-            background-color: #fdfbf7; /* Warm neutral background */
+            background-color: #fdfbf7; /* 溫暖的中性背景色 */
             color: #333;
         }
 
-        /* Custom Scrollbar for cleaner look */
+        /* 自訂捲軸樣式，讓畫面看起來更乾淨 */
         ::-webkit-scrollbar {
             width: 8px;
         }
@@ -30,6 +30,7 @@
             background: #8C1515; 
         }
 
+        /* 圖表容器設定：限制最大寬度與高度，避免在大螢幕上跑版 */
         .chart-container {
             position: relative;
             width: 100%;
@@ -46,12 +47,14 @@
             }
         }
 
+        /* 導航列樣式：當前步驟 */
         .step-active {
             border-bottom: 4px solid #8C1515;
             color: #8C1515;
             font-weight: 700;
         }
         
+        /* 導航列樣式：非當前步驟 */
         .step-inactive {
             border-bottom: 4px solid transparent;
             color: #6b7280;
@@ -62,6 +65,7 @@
             opacity: 0.8;
         }
 
+        /* 卡片懸浮效果 */
         .card-shadow {
             box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
             transition: transform 0.2s ease-in-out;
@@ -84,18 +88,18 @@
             font-variant-numeric: tabular-nums;
         }
     </style>
-    <!-- Chosen Palette: Stanford Red (#8C1515) & Cool Grey (#4D4F53) with Warm Neutral Background (#fdfbf7) -->
-    <!-- Application Structure Plan: 
-         Designed as a "Linear Workshop Wizard". 
-         1. Overview Dashboard: Shows the time allocation and core rules, setting the mental stage.
-         2. Tabbed/Step Navigation: Allows linear progression through the 5 Design Thinking phases (Empathize, Define, Ideate, Prototype, Test).
-         3. Interactive Tools per Phase: Each phase includes specific interactive elements (Timers, Inputs, Comparison Charts) relevant to that step's task.
-         4. Justification: This structure mirrors the workshop's chronological flow, keeping students focused on the current task while providing the necessary "tools" (like timers) right where they are needed.
+    <!-- 選用配色方案：以史丹佛大學標準紅 (#8C1515) 與冷灰色 (#4D4F53) 為主，搭配溫暖舒適的米白背景 (#fdfbf7)，營造專業且不刺眼的工作坊氛圍。 -->
+    <!-- 應用程式架構規劃：
+         這裡設計成一個「線性工作坊嚮導」。
+         1. 總覽儀表板 (Overview Dashboard)：用來展示時間分配和核心規則，幫學生建立心理準備。
+         2. 分步驟導航 (Tabbed Navigation)：讓學生能依序經歷設計思考的五大階段（同理、定義、發想、原型、測試），不會迷路。
+         3. 階段專屬工具 (Interactive Tools)：每個階段都放了該步驟需要的工具，像是計時器、輸入框或是圖表，隨手可用。
+         4. 設計理由 (Justification)：這樣的結構完全對應工作坊的時間軸，能讓學生專注在當下的任務，需要計時器的時候它就在手邊，不用手忙腳亂找工具。
     -->
 </head>
 <body class="flex flex-col min-h-screen">
 
-    <!-- Header / Navigation -->
+    <!-- Header / 導航列 -->
     <header class="bg-white shadow-sm sticky top-0 z-50">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div class="flex justify-between items-center h-16">
@@ -111,13 +115,13 @@
                     <button onclick="navTo('prototype')" id="nav-prototype" class="px-3 py-2 text-sm step-inactive transition-colors">4.原型</button>
                     <button onclick="navTo('test')" id="nav-test" class="px-3 py-2 text-sm step-inactive transition-colors">5.測試</button>
                 </div>
-                <!-- Mobile Menu Button (Simplified for this SPA) -->
+                <!-- 手機版選單按鈕 (簡化版) -->
                 <button onclick="toggleMobileMenu()" class="md:hidden p-2 text-gray-600">
                     <span class="text-2xl">☰</span>
                 </button>
             </div>
         </div>
-        <!-- Mobile Menu Dropdown -->
+        <!-- 手機版下拉選單 -->
         <div id="mobile-menu" class="hidden md:hidden bg-gray-50 border-t border-gray-200">
             <div class="flex flex-col px-4 py-2 space-y-2">
                 <button onclick="navTo('intro')" class="text-left py-2 font-medium">總覽</button>
@@ -130,12 +134,12 @@
         </div>
     </header>
 
-    <!-- Main Content Area -->
+    <!-- 主要內容區 -->
     <main class="flex-grow max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-8">
 
-        <!-- SECTION: INTRO & OVERVIEW -->
+        <!-- 區塊：開場與總覽 (INTRO & OVERVIEW) -->
         <section id="view-intro" class="animate-fade-in">
-            <!-- Context Header -->
+            <!-- 課程金句 -->
             <div class="text-center mb-10">
                 <blockquote class="text-2xl md:text-3xl font-light italic text-gray-700 mb-4">
                     "Design is not just what it looks like and feels like.<br>
@@ -150,25 +154,25 @@
 
             <div class="grid grid-cols-1 lg:grid-cols-2 gap-8 items-start">
                 
-                <!-- Workshop Structure Chart -->
+                <!-- 工作坊時間分配圖表 -->
                 <div class="bg-white p-6 rounded-xl card-shadow border-t-4 border-gray-600">
                     <h2 class="text-xl font-bold mb-2 flex items-center">
                         <span class="mr-2">📊</span> 90 分鐘工作坊時間分配
                     </h2>
                     <p class="text-sm text-gray-500 mb-6">了解我們將如何分配寶貴的課堂時間</p>
                     
-                    <!-- Chart Container -->
+                    <!-- 圖表容器 -->
                     <div class="chart-container">
                         <canvas id="timeAllocationChart"></canvas>
                     </div>
-                    <!-- Visualization & Content Choices: 
-                         Goal: Inform users about the structure and pacing of the workshop.
-                         Method: Doughnut Chart (Chart.js).
-                         Justification: Visually demonstrates that 'Prototype' is the most time-intensive phase, emphasizing "Thinking with hands".
+                    <!-- 視覺化選擇說明：
+                         目標：讓學生了解工作坊的結構與節奏。
+                         方法：使用 Chart.js 的甜甜圈圖。
+                         理由：甜甜圈圖可以很直觀地顯示各階段佔比，尤其凸顯「原型製作」佔了最大塊，強調這堂課的核心是「動手做」。
                     -->
                 </div>
 
-                <!-- Core Rules Cards -->
+                <!-- 核心規則卡片 -->
                 <div class="space-y-6">
                     <h2 class="text-xl font-bold mb-4 flex items-center">
                         <span class="mr-2">📜</span> 今日規則 (Rules)
@@ -198,21 +202,21 @@
             </div>
         </section>
 
-        <!-- SECTION: STEP 1 - EMPATHIZE -->
+        <!-- 區塊：步驟 1 - 同理心 (STEP 1 - EMPATHIZE) -->
         <section id="view-empathize" class="hidden animate-fade-in space-y-8">
             <div class="bg-white p-6 rounded-xl card-shadow border-t-4 border-red-800">
                 <div class="flex justify-between items-center mb-4">
                     <h2 class="text-2xl font-bold text-gray-800">STEP 1: 同理心 (Empathize)</h2>
-                    <span class="bg-red-100 text-red-800 text-xs px-2 py-1 rounded-full font-bold">總時長: 約 16-20 min</span>
+                    <span class="bg-red-100 text-red-800 text-xs px-2 py-1 rounded-full font-bold">總時長: 16 min</span>
                 </div>
                 <p class="text-gray-600 mb-6">
                     設計的起點是理解。請你的夥伴拿出錢包，或開啟常用的支付 App。我們的目標是問出「故事」，而不僅僅是功能介紹。
                     請依照下方步驟，<strong>每人進行兩輪訪談（互換角色）</strong>。
                 </p>
 
-                <!-- Interactive Timer Section -->
+                <!-- 互動計時區 -->
                 <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
-                    <!-- Guide Left -->
+                    <!-- 左側指南 -->
                     <div class="space-y-4">
                         <h3 class="font-bold text-lg">訪談指南</h3>
                         
@@ -237,9 +241,9 @@
                         </div>
                     </div>
 
-                    <!-- Timer Control Right -->
+                    <!-- 右側計時控制 -->
                     <div class="flex flex-col items-center justify-start bg-gray-100 rounded-xl p-8">
-                        <!-- Dynamic Status Text -->
+                        <!-- 動態狀態顯示 -->
                         <div id="status-empathize" class="text-xl font-bold text-red-800 mb-4 text-center min-h-[30px] animate-pulse">
                             準備開始
                         </div>
@@ -277,7 +281,7 @@
             </div>
         </section>
 
-        <!-- SECTION: STEP 2 - DEFINE -->
+        <!-- 區塊：步驟 2 - 定義問題 (STEP 2 - DEFINE) -->
         <section id="view-define" class="hidden animate-fade-in space-y-8">
             <div class="bg-white p-6 rounded-xl card-shadow border-t-4 border-red-800">
                 <div class="flex justify-between items-center mb-4">
@@ -288,7 +292,7 @@
                     整理剛剛的訪談筆記。你的夥伴真正需要的是什麼？請試著填寫下方的「觀點聲明」(Point of View)，這將是你設計的導航星。
                 </p>
 
-                <!-- Interactive POV Generator -->
+                <!-- 互動式 POV 產生器 -->
                 <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
                     <div class="space-y-4">
                         <div class="timer-mini flex items-center justify-between bg-gray-100 p-3 rounded mb-4">
@@ -316,7 +320,7 @@
                         </div>
                     </div>
 
-                    <!-- POV Result Display -->
+                    <!-- POV 結果顯示區 -->
                     <div class="flex flex-col justify-center">
                         <div id="pov-result" class="bg-yellow-50 border-2 border-dashed border-yellow-300 p-6 rounded-xl text-center min-h-[200px] flex flex-col justify-center items-center">
                             <p class="text-gray-400 italic">請在左側輸入資料以生成您的設計觀點...</p>
@@ -331,7 +335,7 @@
             </div>
         </section>
 
-        <!-- SECTION: STEP 3 - IDEATE -->
+        <!-- 區塊：步驟 3 - 創意發想 (STEP 3 - IDEATE) -->
         <section id="view-ideate" class="hidden animate-fade-in space-y-8">
             <div class="bg-white p-6 rounded-xl card-shadow border-t-4 border-red-800">
                 <div class="flex justify-between items-center mb-4">
@@ -394,7 +398,7 @@
             </div>
         </section>
 
-        <!-- SECTION: STEP 4 - PROTOTYPE -->
+        <!-- 區塊：步驟 4 - 原型製作 (STEP 4 - PROTOTYPE) -->
         <section id="view-prototype" class="hidden animate-fade-in space-y-8">
             <div class="bg-white p-6 rounded-xl card-shadow border-t-4 border-red-800">
                 <div class="flex justify-between items-center mb-4">
@@ -416,16 +420,16 @@
                         </div>
                     </div>
                     
-                    <!-- Cost vs Fidelity Chart -->
+                    <!-- Cost vs Fidelity 圖表：比較低保真與高保真原型的修改成本 -->
                      <div class="bg-white p-4 rounded-lg border border-gray-200">
                         <h4 class="text-sm font-bold text-gray-500 text-center mb-2">為什麼要做低保真 (Low-Fi) 原型？</h4>
                         <div class="chart-container" style="height: 200px;">
                             <canvas id="fidelityChart"></canvas>
                         </div>
-                        <!-- Visualization Choice: 
-                             Goal: Compare Low-Fi vs Hi-Fi prototyping.
-                             Method: Line Chart (Chart.js).
-                             Justification: Illustrates the concept that Low-Fi allows for faster iteration at lower "cost" (time/effort), supporting the instructor's talking point.
+                        <!-- 視覺化選擇說明：
+                             目標：比較低保真 (Low-Fi) 與高保真 (Hi-Fi) 原型的差異。
+                             方法：使用 Chart.js 的折線圖。
+                             理由：用圖表說明 Low-Fi 能以極低的成本進行快速迭代，呼應講師在課堂上強調的觀念。
                         -->
                     </div>
                 </div>
@@ -446,7 +450,7 @@
             </div>
         </section>
 
-        <!-- SECTION: STEP 5 - TEST -->
+        <!-- 區塊：步驟 5 - 測試 (STEP 5 - TEST) -->
         <section id="view-test" class="hidden animate-fade-in space-y-8">
             <div class="bg-white p-6 rounded-xl card-shadow border-t-4 border-red-800">
                 <div class="flex justify-between items-center mb-4">
@@ -508,13 +512,13 @@
             </div>
         </section>
 
-        <!-- SECTION: RECAP MODAL -->
+        <!-- 區塊：課程總結 (RECAP MODAL) -->
         <div id="recap-modal" class="fixed inset-0 bg-gray-900 z-50 hidden flex items-center justify-center animate-fade-in">
             <div class="text-center text-white max-w-5xl px-6 w-full">
                 <h2 class="text-4xl font-bold mb-2 text-white">課程核心回顧</h2>
                 <p class="text-gray-400 mb-8">從紙上原型回到數位圖像設計</p>
 
-                <!-- Process Flow Large/Flowchart -->
+                <!-- 大型流程圖 -->
                 <div class="flex flex-wrap justify-center items-center gap-4 md:gap-6 mb-12">
                     <!-- Step 1 -->
                     <div class="flex flex-col items-center group">
@@ -569,10 +573,10 @@
                     </div>
                 </div>
 
-                <!-- The 3 Key Takeaways -->
+                <!-- 三大核心觀念 -->
                 <div class="grid grid-cols-1 md:grid-cols-3 gap-6 text-left mb-12">
                     
-                    <!-- Point 1 -->
+                    <!-- 觀念 1 -->
                     <div class="bg-gray-800 p-6 rounded-xl border border-gray-700 hover:border-blue-500 transition-colors group">
                         <div class="text-4xl mb-4 group-hover:scale-110 transition-transform origin-left">📡</div>
                         <h3 class="text-xl font-bold text-blue-400 mb-3">1. 資訊怎麼傳播？</h3>
@@ -582,7 +586,7 @@
                         </p>
                     </div>
 
-                    <!-- Point 2 -->
+                    <!-- 觀念 2 -->
                     <div class="bg-gray-800 p-6 rounded-xl border border-gray-700 hover:border-yellow-500 transition-colors group">
                         <div class="text-4xl mb-4 group-hover:scale-110 transition-transform origin-left">🎨</div>
                         <h3 class="text-xl font-bold text-yellow-400 mb-3">2. 為何這麼設計？</h3>
@@ -592,7 +596,7 @@
                         </p>
                     </div>
 
-                    <!-- Point 3 -->
+                    <!-- 觀念 3 -->
                     <div class="bg-gray-800 p-6 rounded-xl border border-gray-700 hover:border-red-500 transition-colors group">
                         <div class="text-4xl mb-4 group-hover:scale-110 transition-transform origin-left">🧩</div>
                         <h3 class="text-xl font-bold text-red-400 mb-3">3. 解決什麼問題？</h3>
@@ -610,7 +614,7 @@
             </div>
         </div>
 
-        <!-- SECTION: AWARDS MODAL (Hidden by default) -->
+        <!-- 區塊：頒獎典禮 (AWARDS MODAL) -->
         <div id="awards-modal" class="fixed inset-0 bg-[#8C1515] z-50 hidden flex items-center justify-center animate-fade-in">
             <div class="text-center text-white max-w-2xl px-4">
                 <h2 class="text-6xl font-bold mb-6 text-yellow-400">🏆 頒獎典禮</h2>
@@ -628,29 +632,29 @@
 
     </main>
 
-    <!-- Footer -->
+    <!-- 頁尾 -->
     <footer class="bg-gray-100 border-t border-gray-200 py-6 mt-8">
         <div class="max-w-7xl mx-auto px-4 text-center text-gray-500 text-sm">
-            <p>Design Thinking Workshop Guide | Adapted for Digital Image Production Course</p>
+            <p>設計思考工作坊 | 114-1 數位圖像製作實務 吳林展</p>
         </div>
     </footer>
 
-    <!-- Audio Elements -->
-    <!-- Alarm: Mechanical Clock Ring (CC0/Google Sounds) -->
+    <!-- 音效元素 -->
+    <!-- 鬧鐘聲：機械式鬧鐘鈴聲 (CC0/Google Sounds) -->
     <audio id="alarm-sound" src="https://actions.google.com/sounds/v1/alarms/mechanical_clock_ring.ogg" preload="auto"></audio>
-    <!-- BG Music: Neutral Lo-Fi - 'Empty Mind' (CC0 from Pixabay CDN) -->
-    <audio id="bg-music" src="https://cdn.pixabay.com/audio/2022/05/27/audio_1808fbf07a.mp3" loop preload="auto"></audio>
+    <!-- 背景音樂：較長的 Lo-Fi 曲目 - 'Lofi Study' (CC0 from Pixabay) ~2:30 長度 -->
+    <audio id="bg-music" src="https://cdn.pixabay.com/audio/2022/01/18/audio_d0a13f69d2.mp3" loop preload="auto"></audio>
 
-    <!-- JavaScript Logic -->
+    <!-- JavaScript 邏輯程式 -->
     <script>
-        // --- 1. Navigation Logic ---
+        // --- 1. 導航邏輯 ---
         const views = ['intro', 'empathize', 'define', 'ideate', 'prototype', 'test'];
         
         function navTo(viewId) {
-            // Hide all views
+            // 隱藏所有頁面
             views.forEach(id => {
                 document.getElementById(`view-${id}`).classList.add('hidden');
-                // Update nav buttons (Desktop)
+                // 更新桌機版按鈕狀態
                 const btn = document.getElementById(`nav-${id}`);
                 if (btn) {
                     if (id === viewId) {
@@ -663,10 +667,10 @@
                 }
             });
 
-            // Show selected view
+            // 顯示選定的頁面
             const activeView = document.getElementById(`view-${viewId}`);
             activeView.classList.remove('hidden');
-            // Scroll to top
+            // 捲動到頂部
             window.scrollTo(0, 0);
         }
 
@@ -675,7 +679,7 @@
             menu.classList.toggle('hidden');
         }
 
-        // --- 2. Timer Logic with Music ---
+        // --- 2. 計時器與音樂邏輯 ---
         let timerIntervals = {};
 
         function formatTime(seconds) {
@@ -685,35 +689,35 @@
         }
 
         function startTimer(id, duration, labelText = '') {
-            // Stop existing timer if any
+            // 先清除該 ID 已存在的計時器
             if (timerIntervals[id]) clearInterval(timerIntervals[id]);
             
-            // Audio handling
+            // 音效處理
             const alarm = document.getElementById('alarm-sound');
             const bgMusic = document.getElementById('bg-music');
             
-            // Reset and play BG music
+            // 重置並播放背景音樂
             bgMusic.currentTime = 0;
-            bgMusic.volume = 0.3; // Low volume for background
-            bgMusic.play().catch(e => console.log("Music autoplay might be blocked"));
+            bgMusic.volume = 0.3; // 設定較低音量以免干擾
+            bgMusic.play().catch(e => console.log("音樂自動播放可能被瀏覽器阻擋"));
 
-            // Preload alarm
+            // 預載鬧鐘聲
             alarm.load();
 
             const display = document.getElementById(`timer-${id}`);
             
-            // Update Label if provided
+            // 如果有提供標籤文字，則更新狀態顯示
             if (labelText) {
                 const statusDisplay = document.getElementById(`status-${id}`);
                 if (statusDisplay) {
                     statusDisplay.textContent = labelText;
-                    statusDisplay.classList.remove('animate-pulse'); // Remove pulse while running
+                    statusDisplay.classList.remove('animate-pulse'); // 計時中移除閃爍效果
                 }
             }
 
             let timeLeft = duration;
             
-            // Immediate update
+            // 立即更新顯示
             display.textContent = formatTime(timeLeft);
             
             timerIntervals[id] = setInterval(() => {
@@ -725,13 +729,13 @@
                     display.classList.add('animate-pulse');
                     display.style.color = 'red';
                     
-                    // Stop music and play alarm
+                    // 停止音樂並播放鬧鐘
                     bgMusic.pause();
                     bgMusic.currentTime = 0;
                     alarm.currentTime = 0;
-                    alarm.play().catch(e => console.log("Alarm play failed", e));
+                    alarm.play().catch(e => console.log("鬧鐘播放失敗", e));
                     
-                    // Re-animate status label to grab attention
+                    // 重新讓狀態標籤閃爍以吸引注意
                     const statusDisplay = document.getElementById(`status-${id}`);
                     if (statusDisplay) statusDisplay.classList.add('animate-pulse');
                 }
@@ -743,18 +747,18 @@
             const display = document.getElementById(`timer-${id}`);
             display.textContent = formatTime(duration);
             display.classList.remove('animate-pulse');
-            display.style.color = ''; // Reset color
+            display.style.color = ''; // 重置顏色
 
-            // Reset Label if provided
+            // 重置標籤文字
             if (labelText) {
                 const statusDisplay = document.getElementById(`status-${id}`);
                 if (statusDisplay) {
                     statusDisplay.textContent = labelText;
-                    statusDisplay.classList.add('animate-pulse'); // Pulse again for "Ready" state
+                    statusDisplay.classList.add('animate-pulse'); // 回復到準備狀態的閃爍
                 }
             }
             
-            // Reset Audios
+            // 重置所有音效
             const bgMusic = document.getElementById('bg-music');
             const alarm = document.getElementById('alarm-sound');
             bgMusic.pause();
@@ -763,7 +767,7 @@
             alarm.currentTime = 0;
         }
 
-        // --- 3. POV Generator Logic ---
+        // --- 3. POV 產生器邏輯 ---
         function generatePOV() {
             const name = document.getElementById('pov-name').value || '[名字]';
             const need = document.getElementById('pov-need').value || '[動詞]';
@@ -784,7 +788,7 @@
             resultDiv.classList.add('shadow-md');
         }
 
-        // --- 4. Awards & Recap Logic ---
+        // --- 4. 頒獎與總結邏輯 ---
         function showRecap() {
             document.getElementById('recap-modal').classList.remove('hidden');
         }
@@ -799,23 +803,23 @@
             navTo('intro');
         }
 
-        // --- 5. Chart.js Initialization ---
+        // --- 5. Chart.js 初始化 ---
         document.addEventListener('DOMContentLoaded', function() {
             
-            // Chart 1: Time Allocation (Doughnut)
+            // 圖表 1：時間分配 (甜甜圈圖)
             const ctx1 = document.getElementById('timeAllocationChart').getContext('2d');
             new Chart(ctx1, {
                 type: 'doughnut',
                 data: {
                     labels: ['同理 (Empathize)', '定義 (Define)', '發想 (Ideate)', '原型 (Prototype)', '測試 (Test)'],
                     datasets: [{
-                        data: [8, 3, 15, 25, 8],
+                        data: [16, 3, 15, 25, 8],
                         backgroundColor: [
-                            '#FCA5A5', // Red 300
-                            '#F87171', // Red 400
-                            '#EF4444', // Red 500
-                            '#B91C1C', // Red 700 (Main Focus)
-                            '#7F1D1D'  // Red 900
+                            '#FCA5A5', // 紅色 300
+                            '#F87171', // 紅色 400
+                            '#EF4444', // 紅色 500
+                            '#B91C1C', // 紅色 700 (主要焦點)
+                            '#7F1D1D'  // 紅色 900
                         ],
                         borderWidth: 0
                     }]
@@ -830,14 +834,14 @@
                         },
                         title: {
                             display: true,
-                            text: '分鐘數分配 (總計約 60 分鐘核心流程)',
+                            text: '分鐘數分配 (核心實作約 67 分鐘 + 緩衝)',
                             font: { size: 14 }
                         }
                     }
                 }
             });
 
-            // Chart 2: Cost of Change vs Fidelity (Line) - Conceptual
+            // 圖表 2：修改成本 vs. 原型保真度 (折線圖) - 概念說明
             const ctx2 = document.getElementById('fidelityChart').getContext('2d');
             new Chart(ctx2, {
                 type: 'line',
@@ -884,6 +888,6 @@
         });
     </script>
     
-    <!-- CONFIRMATION: NO SVG graphics used directly in HTML. Used Font Icons/Unicode and Chart.js Canvas. NO Mermaid JS used. -->
+    <!-- 確認事項：本頁面未使用 SVG 圖檔，而是使用 Chart.js Canvas 與字體圖示。未使用 Mermaid JS。 -->
 </body>
 </html>
