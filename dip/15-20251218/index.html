@@ -1,1 +1,956 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
 
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>數位圖像製作實務：錢包計畫工作坊</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@300;400;700&display=swap');
+
+        body {
+            font-family: 'Noto Sans TC', sans-serif;
+            background-color: #fdfbf7;
+            /* 溫暖的中性背景色 */
+            color: #333;
+        }
+
+        /* 自訂捲軸樣式，讓畫面看起來更乾淨 */
+        ::-webkit-scrollbar {
+            width: 8px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: #f1f1f1;
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: #ccc;
+            border-radius: 4px;
+        }
+
+        ::-webkit-scrollbar-thumb:hover {
+            background: #8C1515;
+        }
+
+        /* 圖表容器設定：限制最大寬度與高度，避免在大螢幕上跑版 */
+        .chart-container {
+            position: relative;
+            width: 100%;
+            max-width: 600px;
+            margin-left: auto;
+            margin-right: auto;
+            height: 300px;
+            max-height: 400px;
+        }
+
+        @media (min-width: 768px) {
+            .chart-container {
+                height: 350px;
+            }
+        }
+
+        /* 導航列樣式：當前步驟 */
+        .step-active {
+            border-bottom: 4px solid #8C1515;
+            color: #8C1515;
+            font-weight: 700;
+        }
+
+        /* 導航列樣式：非當前步驟 */
+        .step-inactive {
+            border-bottom: 4px solid transparent;
+            color: #6b7280;
+        }
+
+        .step-inactive:hover {
+            color: #8C1515;
+            opacity: 0.8;
+        }
+
+        /* 卡片懸浮效果 */
+        .card-shadow {
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+            transition: transform 0.2s ease-in-out;
+        }
+
+        .card-shadow:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+        }
+
+        .stanford-red-bg {
+            background-color: #8C1515;
+        }
+
+        .stanford-red-text {
+            color: #8C1515;
+        }
+
+        .timer-display {
+            font-variant-numeric: tabular-nums;
+        }
+    </style>
+    <!-- 選用配色方案：以史丹佛大學標準紅 (#8C1515) 與冷灰色 (#4D4F53) 為主，搭配溫暖舒適的米白背景 (#fdfbf7)，營造專業且不刺眼的工作坊氛圍。 -->
+    <!-- 應用程式架構規劃：
+         這裡設計成一個「線性工作坊嚮導」。
+         1. 總覽儀表板 (Overview Dashboard)：用來展示時間分配和核心規則，幫學生建立心理準備。
+         2. 分步驟導航 (Tabbed Navigation)：讓學生能依序經歷設計思考的五大階段（同理、定義、發想、原型、測試），不會迷路。
+         3. 階段專屬工具 (Interactive Tools)：每個階段都放了該步驟需要的工具，像是計時器、輸入框或是圖表，隨手可用。
+         4. 設計理由 (Justification)：這樣的結構完全對應工作坊的時間軸，能讓學生專注在當下的任務，需要計時器的時候它就在手邊，不用手忙腳亂找工具。
+    -->
+</head>
+
+<body class="flex flex-col min-h-screen">
+
+    <!-- Header / 導航列 -->
+    <header class="bg-white shadow-sm sticky top-0 z-50">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex justify-between items-center h-16">
+                <div class="flex items-center">
+                    <span class="text-2xl mr-2">👛</span>
+                    <h1 class="text-xl font-bold text-gray-800 tracking-wide">錢包計畫 <span
+                            class="text-sm font-normal text-gray-500 hidden sm:inline">| 設計思考工作坊</span></h1>
+                </div>
+                <div class="hidden md:flex space-x-1">
+                    <button onclick="navTo('intro')" id="nav-intro"
+                        class="px-3 py-2 text-sm step-active transition-colors">總覽</button>
+                    <button onclick="navTo('empathize')" id="nav-empathize"
+                        class="px-3 py-2 text-sm step-inactive transition-colors">1.同理</button>
+                    <button onclick="navTo('define')" id="nav-define"
+                        class="px-3 py-2 text-sm step-inactive transition-colors">2.定義</button>
+                    <button onclick="navTo('ideate')" id="nav-ideate"
+                        class="px-3 py-2 text-sm step-inactive transition-colors">3.發想</button>
+                    <button onclick="navTo('prototype')" id="nav-prototype"
+                        class="px-3 py-2 text-sm step-inactive transition-colors">4.原型</button>
+                    <button onclick="navTo('test')" id="nav-test"
+                        class="px-3 py-2 text-sm step-inactive transition-colors">5.測試</button>
+                </div>
+                <!-- 手機版選單按鈕 (簡化版) -->
+                <button onclick="toggleMobileMenu()" class="md:hidden p-2 text-gray-600">
+                    <span class="text-2xl">☰</span>
+                </button>
+            </div>
+        </div>
+        <!-- 手機版下拉選單 -->
+        <div id="mobile-menu" class="hidden md:hidden bg-gray-50 border-t border-gray-200">
+            <div class="flex flex-col px-4 py-2 space-y-2">
+                <button onclick="navTo('intro')" class="text-left py-2 font-medium">總覽</button>
+                <button onclick="navTo('empathize')" class="text-left py-2 text-gray-600">1. 同理 (Empathize)</button>
+                <button onclick="navTo('define')" class="text-left py-2 text-gray-600">2. 定義 (Define)</button>
+                <button onclick="navTo('ideate')" class="text-left py-2 text-gray-600">3. 發想 (Ideate)</button>
+                <button onclick="navTo('prototype')" class="text-left py-2 text-gray-600">4. 原型 (Prototype)</button>
+                <button onclick="navTo('test')" class="text-left py-2 text-gray-600">5. 測試 (Test)</button>
+            </div>
+        </div>
+    </header>
+
+    <!-- 主要內容區 -->
+    <main class="flex-grow max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-8">
+
+        <!-- 區塊：開場與總覽 (INTRO & OVERVIEW) -->
+        <section id="view-intro" class="animate-fade-in">
+            <!-- 課程金句 -->
+            <div class="text-center mb-10">
+                <blockquote class="text-2xl md:text-3xl font-light italic text-gray-700 mb-4">
+                    "Design is not just what it looks like and feels like.<br>
+                    <span class="stanford-red-text font-bold">Design is how it works.</span>"
+                </blockquote>
+                <p class="text-gray-500">- Steve Jobs</p>
+                <p class="mt-4 max-w-2xl mx-auto text-gray-600 leading-relaxed">
+                    歡迎來到數位圖像製作實務課程的期末工作坊。在這裡，漂亮的圖像只是「表皮」，解決問題的流程才是「靈魂」。
+                    今天我們將暫時放下滑鼠與繪圖軟體，透過 90 分鐘的實作，體驗以人為本的設計流程。
+                </p>
+            </div>
+
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-8 items-start">
+
+                <!-- 工作坊時間分配圖表 -->
+                <div class="bg-white p-6 rounded-xl card-shadow border-t-4 border-gray-600">
+                    <h2 class="text-xl font-bold mb-2 flex items-center">
+                        <span class="mr-2">📊</span> 90 分鐘工作坊時間分配
+                    </h2>
+                    <p class="text-sm text-gray-500 mb-6">了解我們將如何分配寶貴的課堂時間</p>
+
+                    <!-- 圖表容器 -->
+                    <div class="chart-container">
+                        <canvas id="timeAllocationChart"></canvas>
+                    </div>
+                    <!-- 視覺化選擇說明：
+                         目標：讓學生了解工作坊的結構與節奏。
+                         方法：使用 Chart.js 的甜甜圈圖。
+                         理由：甜甜圈圖可以很直觀地顯示各階段佔比，尤其凸顯「原型製作」佔了最大塊，強調這堂課的核心是「動手做」。
+                    -->
+                </div>
+
+                <!-- 核心規則卡片 -->
+                <div class="space-y-6">
+                    <h2 class="text-xl font-bold mb-4 flex items-center">
+                        <span class="mr-2">📜</span> 今日規則 (Rules)
+                    </h2>
+
+                    <div class="bg-white p-5 rounded-lg border-l-4 border-yellow-400 card-shadow">
+                        <h3 class="font-bold text-lg mb-1 text-gray-800">👁️ Show, Don't Tell</h3>
+                        <p class="text-gray-600">少說廢話，盡量用畫的。圖像比語言更能傳達直覺的感受。</p>
+                    </div>
+
+                    <div class="bg-white p-5 rounded-lg border-l-4 border-red-500 card-shadow">
+                        <h3 class="font-bold text-lg mb-1 text-gray-800">❤️ Focus on Human Values</h3>
+                        <p class="text-gray-600">重點是夥伴的「感受」，而不是技術規格。設計是為了解決人的問題。</p>
+                    </div>
+
+                    <div class="bg-white p-5 rounded-lg border-l-4 border-blue-500 card-shadow">
+                        <h3 class="font-bold text-lg mb-1 text-gray-800">⏱️ Time Boxing (嚴格控時)</h3>
+                        <p class="text-gray-600">時間非常趕！請相信你的直覺，不要想太久。快速失敗，快速修正。</p>
+                    </div>
+
+                    <div class="mt-6 text-center">
+                        <button onclick="navTo('empathize')"
+                            class="stanford-red-bg text-white px-8 py-3 rounded-full font-bold shadow-lg hover:opacity-90 transition-transform transform hover:scale-105">
+                            開始工作坊 ➔
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- 區塊：步驟 1 - 同理心 (STEP 1 - EMPATHIZE) -->
+        <section id="view-empathize" class="hidden animate-fade-in space-y-8">
+            <div class="bg-white p-6 rounded-xl card-shadow border-t-4 border-red-800">
+                <div class="flex justify-between items-center mb-4">
+                    <h2 class="text-2xl font-bold text-gray-800">STEP 1: 同理心 (Empathize)</h2>
+                    <span class="bg-red-100 text-red-800 text-xs px-2 py-1 rounded-full font-bold">總時長: 16 min</span>
+                </div>
+                <p class="text-gray-600 mb-6">
+                    設計的起點是理解。請你的夥伴拿出錢包，或開啟常用的支付 App。我們的目標是問出「故事」，而不僅僅是功能介紹。
+                    請依照下方步驟，<strong>每人進行兩輪訪談（互換角色）</strong>。
+                </p>
+
+                <!-- 互動計時區 -->
+                <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+                    <!-- 左側指南 -->
+                    <div class="space-y-4">
+                        <h3 class="font-bold text-lg">訪談指南</h3>
+
+                        <div class="bg-gray-50 p-4 rounded-lg">
+                            <h4 class="font-bold text-gray-700 mb-2">第 1 輪：廣度訪談 (4 min/人)</h4>
+                            <p class="text-xs text-gray-500 mb-2">請夥伴打開錢包介紹物品。</p>
+                            <ul class="list-disc list-inside text-sm text-gray-600 space-y-1">
+                                <li>這裡面有什麼？</li>
+                                <li>這張舊收據有什麼故事？</li>
+                                <li>你為什麼把這張卡放最前面？</li>
+                            </ul>
+                        </div>
+
+                        <div class="bg-gray-50 p-4 rounded-lg">
+                            <h4 class="font-bold text-gray-700 mb-2">第 2 輪：深度挖掘 (4 min/人)</h4>
+                            <p class="text-xs text-gray-500 mb-2">尋找情緒與痛點，問「為什麼」。</p>
+                            <ul class="list-disc list-inside text-sm text-gray-600 space-y-1">
+                                <li>為什麼結帳時你會感到焦慮？</li>
+                                <li>為什麼這張照片對你很重要？</li>
+                                <li><strong>觀察情緒起伏</strong></li>
+                            </ul>
+                        </div>
+                    </div>
+
+                    <!-- 右側計時控制 -->
+                    <div class="flex flex-col items-center justify-start bg-gray-100 rounded-xl p-8">
+                        <!-- 動態狀態顯示 -->
+                        <div id="status-empathize"
+                            class="text-xl font-bold text-red-800 mb-4 text-center min-h-[30px] animate-pulse">
+                            準備開始
+                        </div>
+
+                        <div class="text-6xl font-mono font-bold stanford-red-text timer-display mb-6"
+                            id="timer-empathize">04:00</div>
+
+                        <div class="grid grid-cols-2 gap-3 w-full max-w-md">
+                            <button onclick="startTimer('empathize', 240, '第 1 輪：A 訪問 B (廣度訪談)')"
+                                class="bg-gray-800 text-white px-2 py-2 text-sm rounded hover:bg-gray-700 flex flex-col items-center">
+                                <span class="font-bold">1. A 訪 B</span>
+                                <span class="text-xs text-gray-400">4 分鐘</span>
+                            </button>
+                            <button onclick="startTimer('empathize', 240, '第 1 輪交換：B 訪問 A (廣度訪談)')"
+                                class="bg-gray-600 text-white px-2 py-2 text-sm rounded hover:bg-gray-500 flex flex-col items-center">
+                                <span class="font-bold">2. B 訪 A (交換)</span>
+                                <span class="text-xs text-gray-300">4 分鐘</span>
+                            </button>
+                            <button onclick="startTimer('empathize', 240, '第 2 輪：A 訪問 B (深度挖掘)')"
+                                class="bg-gray-800 text-white px-2 py-2 text-sm rounded hover:bg-gray-700 flex flex-col items-center">
+                                <span class="font-bold">3. A 訪 B</span>
+                                <span class="text-xs text-gray-400">4 分鐘 (深度)</span>
+                            </button>
+                            <button onclick="startTimer('empathize', 240, '第 2 輪交換：B 訪問 A (深度挖掘)')"
+                                class="bg-gray-600 text-white px-2 py-2 text-sm rounded hover:bg-gray-500 flex flex-col items-center">
+                                <span class="font-bold">4. B 訪 A (交換)</span>
+                                <span class="text-xs text-gray-300">4 分鐘 (深度)</span>
+                            </button>
+                        </div>
+
+                        <div class="mt-4">
+                            <button onclick="resetTimer('empathize', 240, '準備開始')"
+                                class="bg-white border border-gray-300 text-gray-700 px-6 py-1 text-sm rounded hover:bg-gray-50">重置計時</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="flex justify-end">
+                <button onclick="navTo('define')" class="text-gray-600 hover:text-red-800 font-medium">下一步：定義需求
+                    ➔</button>
+            </div>
+        </section>
+
+        <!-- 區塊：步驟 2 - 定義問題 (STEP 2 - DEFINE) -->
+        <section id="view-define" class="hidden animate-fade-in space-y-8">
+            <div class="bg-white p-6 rounded-xl card-shadow border-t-4 border-red-800">
+                <div class="flex justify-between items-center mb-4">
+                    <h2 class="text-2xl font-bold text-gray-800">STEP 2: 定義問題 (Define)</h2>
+                    <span class="bg-red-100 text-red-800 text-xs px-2 py-1 rounded-full font-bold">總時長: 3 min</span>
+                </div>
+                <p class="text-gray-600 mb-6">
+                    整理剛剛的訪談筆記。你的夥伴真正需要的是什麼？請試著填寫下方的「觀點聲明」(Point of View)，這將是你設計的導航星。
+                </p>
+
+                <!-- 互動式 POV 產生器 -->
+                <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+                    <div class="space-y-4">
+                        <div class="timer-mini flex items-center justify-between bg-gray-100 p-3 rounded mb-4">
+                            <span class="font-bold text-gray-700">思考時間</span>
+                            <div class="flex items-center gap-3">
+                                <span id="timer-define"
+                                    class="font-mono text-xl stanford-red-text font-bold">03:00</span>
+                                <button onclick="startTimer('define', 180, '思考觀點聲明')"
+                                    class="text-xs bg-gray-800 text-white px-2 py-1 rounded">開始</button>
+                            </div>
+                        </div>
+
+                        <div class="space-y-3">
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700">夥伴名字</label>
+                                <input type="text" id="pov-name"
+                                    class="mt-1 block w-full border-gray-300 rounded-md shadow-sm p-2 border"
+                                    placeholder="例如：小明">
+                            </div>
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700">需要一種方式來... (動詞)</label>
+                                <input type="text" id="pov-need"
+                                    class="mt-1 block w-full border-gray-300 rounded-md shadow-sm p-2 border"
+                                    placeholder="例如：在結帳時感到更有安全感">
+                            </div>
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700">因為令人驚訝的是... (洞察)</label>
+                                <input type="text" id="pov-insight"
+                                    class="mt-1 block w-full border-gray-300 rounded-md shadow-sm p-2 border"
+                                    placeholder="例如：他其實不在乎速度，而在乎隱私被看見">
+                            </div>
+                            <button onclick="generatePOV()"
+                                class="w-full stanford-red-bg text-white py-2 rounded font-bold hover:opacity-90">生成觀點聲明</button>
+                        </div>
+                    </div>
+
+                    <!-- POV 結果顯示區 -->
+                    <div class="flex flex-col justify-center">
+                        <div id="pov-result"
+                            class="bg-yellow-50 border-2 border-dashed border-yellow-300 p-6 rounded-xl text-center min-h-[200px] flex flex-col justify-center items-center">
+                            <p class="text-gray-400 italic">請在左側輸入資料以生成您的設計觀點...</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="flex justify-between">
+                <button onclick="navTo('empathize')" class="text-gray-500 hover:text-gray-800">⬅ 上一步</button>
+                <button onclick="navTo('ideate')" class="text-gray-600 hover:text-red-800 font-medium">下一步：創意發想
+                    ➔</button>
+            </div>
+        </section>
+
+        <!-- 區塊：步驟 3 - 創意發想 (STEP 3 - IDEATE) -->
+        <section id="view-ideate" class="hidden animate-fade-in space-y-8">
+            <div class="bg-white p-6 rounded-xl card-shadow border-t-4 border-red-800">
+                <div class="flex justify-between items-center mb-4">
+                    <h2 class="text-2xl font-bold text-gray-800">STEP 3: 創意發想 (Ideate)</h2>
+                    <span class="bg-red-100 text-red-800 text-xs px-2 py-1 rounded-full font-bold">總時長: 15 min</span>
+                </div>
+
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+                    <div class="bg-blue-50 p-4 rounded text-center">
+                        <div class="text-2xl mb-2">🚀</div>
+                        <h3 class="font-bold text-gray-800">Quantity over Quality</h3>
+                        <p class="text-sm text-gray-600">重質不重量，先求有再求好。</p>
+                    </div>
+                    <div class="bg-purple-50 p-4 rounded text-center">
+                        <div class="text-2xl mb-2">🎨</div>
+                        <h3 class="font-bold text-gray-800">Be Visual</h3>
+                        <p class="text-sm text-gray-600">用畫的！不要只寫字。</p>
+                    </div>
+                    <div class="bg-green-50 p-4 rounded text-center">
+                        <div class="text-2xl mb-2">🦁</div>
+                        <h3 class="font-bold text-gray-800">Go Wild</h3>
+                        <p class="text-sm text-gray-600">瘋狂一點，不要考慮預算。</p>
+                    </div>
+                </div>
+
+                <div class="flex flex-col items-center bg-gray-900 text-white rounded-xl p-8">
+                    <h3 class="text-xl mb-4 font-light tracking-widest">瘋狂發想時間</h3>
+                    <div class="text-7xl font-mono font-bold text-yellow-400 timer-display mb-6" id="timer-ideate">10:00
+                    </div>
+                    <div class="flex space-x-4">
+                        <button onclick="startTimer('ideate', 600, '發想開始')"
+                            class="bg-yellow-500 text-gray-900 px-8 py-3 rounded-full font-bold hover:bg-yellow-400 transition-transform hover:scale-105">開始計時</button>
+                        <button onclick="resetTimer('ideate', 600)"
+                            class="bg-transparent border border-gray-500 text-gray-300 px-6 py-3 rounded-full hover:bg-gray-800">重置</button>
+                    </div>
+                    <p class="text-gray-400 text-sm mt-6">💡 提示：可以是實體錢包，也可以是未來的 App 介面。</p>
+                </div>
+
+                <div class="mt-6 p-4 bg-gray-50 rounded-lg">
+                    <div class="flex flex-wrap justify-between items-center mb-2 gap-2">
+                        <h3 class="font-bold text-gray-800">分享與回饋 (最後 5 分鐘 - 兩人共用)</h3>
+                        <div
+                            class="flex items-center gap-3 bg-white px-3 py-1 rounded-md border border-gray-200 shadow-sm">
+                            <span id="timer-share" class="font-mono text-lg stanford-red-text font-bold">05:00</span>
+                            <div class="flex gap-1">
+                                <button onclick="startTimer('share', 300, '分享與回饋 (兩人共用)')"
+                                    class="text-xs bg-gray-800 text-white px-3 py-1.5 rounded hover:bg-gray-700 transition-colors">開始</button>
+                                <button onclick="resetTimer('share', 300)"
+                                    class="text-xs border border-gray-300 text-gray-600 px-2 py-1.5 rounded hover:bg-gray-100 transition-colors">↺</button>
+                            </div>
+                        </div>
+                    </div>
+                    <ul class="list-disc list-inside text-gray-600 text-sm">
+                        <li><strong>時間分配</strong>：建議一人 2.5 分鐘，快速交換意見。</li>
+                        <li>把草圖秀給夥伴看。</li>
+                        <li><strong>Don't Sell</strong>：不要推銷，要傾聽。</li>
+                        <li>紀錄夥伴說的話：「我喜歡...」、「如果...會更好」。</li>
+                        <li><strong>最後選出一個最棒的點子！</strong></li>
+                    </ul>
+                </div>
+            </div>
+
+            <div class="flex justify-between">
+                <button onclick="navTo('ideate')" class="text-gray-500 hover:text-gray-800">⬅ 上一步</button>
+                <button onclick="navTo('test')" class="text-gray-600 hover:text-red-800 font-medium">下一步：測試驗收 ➔</button>
+            </div>
+        </section>
+
+        <!-- 區塊：步驟 4 - 原型製作 (STEP 4 - PROTOTYPE) -->
+        <section id="view-prototype" class="hidden animate-fade-in space-y-8">
+            <div class="bg-white p-6 rounded-xl card-shadow border-t-4 border-red-800">
+                <div class="flex justify-between items-center mb-4">
+                    <h2 class="text-2xl font-bold text-gray-800">STEP 4: 原型製作 (Prototype)</h2>
+                    <span class="bg-red-100 text-red-800 text-xs px-2 py-1 rounded-full font-bold">總時長: 25 min</span>
+                </div>
+
+                <div class="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-8">
+                    <div>
+                        <p class="text-gray-600 mb-4">
+                            <strong>Visualizing the Solution (將解法視覺化)</strong><br>
+                            因應資傳系特性，請利用紙筆，將你的解決方案繪製出來。不管是介面流程圖 (User Flow) 還是分鏡腳本 (Storyboard)。<br>
+                            目標是讓你的夥伴可以透過圖面「走一遍流程」。
+                        </p>
+                        <div class="bg-red-50 p-4 rounded-lg border border-red-100">
+                            <h4 class="font-bold text-red-800 mb-2">Paper Prototyping (紙上原型)</h4>
+                            <p class="text-sm text-red-700">
+                                如果是 App 設計，請畫出關鍵的 3-5 個畫面（Wireframe）。模擬點擊後的畫面切換，讓使用者真的可以「按」到按鈕。
+                            </p>
+                        </div>
+                    </div>
+
+                    <!-- Cost vs Fidelity 圖表：比較低保真與高保真原型的修改成本 -->
+                    <div class="bg-white p-4 rounded-lg border border-gray-200">
+                        <h4 class="text-sm font-bold text-gray-500 text-center mb-2">為什麼要做低保真 (Low-Fi) 原型？</h4>
+                        <div class="chart-container" style="height: 200px;">
+                            <canvas id="fidelityChart"></canvas>
+                        </div>
+                        <!-- 視覺化選擇說明：
+                             目標：比較低保真 (Low-Fi) 與高保真 (Hi-Fi) 原型的差異。
+                             方法：使用 Chart.js 的折線圖。
+                             理由：用圖表說明 Low-Fi 能以極低的成本進行快速迭代，呼應講師在課堂上強調的觀念。
+                        -->
+                    </div>
+                </div>
+
+                <div
+                    class="flex flex-col items-center justify-center bg-gray-100 rounded-xl p-8 border-2 border-dashed border-gray-300">
+                    <h3 class="text-xl mb-2 font-bold text-gray-700">原型繪製時間</h3>
+                    <div class="text-6xl font-mono font-bold text-gray-800 timer-display mb-6" id="timer-prototype">
+                        25:00</div>
+                    <div class="flex space-x-4">
+                        <button onclick="startTimer('prototype', 1500, '原型製作開始')"
+                            class="stanford-red-bg text-white px-8 py-3 rounded shadow hover:opacity-90">開始製作</button>
+                        <button onclick="resetTimer('prototype', 1500)"
+                            class="bg-white border border-gray-300 text-gray-700 px-6 py-3 rounded hover:bg-gray-50">重置</button>
+                    </div>
+                </div>
+            </div>
+
+            <div class="flex justify-between">
+                <button onclick="navTo('ideate')" class="text-gray-500 hover:text-gray-800">⬅ 上一步</button>
+                <button onclick="navTo('test')" class="text-gray-600 hover:text-red-800 font-medium">下一步：測試驗收 ➔</button>
+            </div>
+        </section>
+
+        <!-- 區塊：步驟 5 - 測試 (STEP 5 - TEST) -->
+        <section id="view-test" class="hidden animate-fade-in space-y-8">
+            <div class="bg-white p-6 rounded-xl card-shadow border-t-4 border-red-800">
+                <div class="flex justify-between items-center mb-4">
+                    <h2 class="text-2xl font-bold text-gray-800">STEP 5: 測試 (Test)</h2>
+                    <span class="bg-red-100 text-red-800 text-xs px-2 py-1 rounded-full font-bold">總時長: 8 min</span>
+                </div>
+
+                <p class="text-gray-600 mb-6">
+                    真實情境演練。請夥伴當使用者，你當解說員/操作員。觀察他如何拿？如何按？表情如何？
+                </p>
+
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-8 mb-8">
+                    <div class="bg-gray-50 p-6 rounded-xl">
+                        <h3 class="font-bold text-gray-800 mb-4">測試觀察矩陣</h3>
+                        <div class="grid grid-cols-2 gap-4">
+                            <div class="bg-white p-3 rounded shadow-sm">
+                                <span class="text-green-600 font-bold block mb-1">+ 喜歡的地方</span>
+                                <span class="text-xs text-gray-500">What worked?</span>
+                            </div>
+                            <div class="bg-white p-3 rounded shadow-sm">
+                                <span class="text-yellow-600 font-bold block mb-1">? 疑問與困惑</span>
+                                <span class="text-xs text-gray-500">Questions?</span>
+                            </div>
+                            <div class="bg-white p-3 rounded shadow-sm">
+                                <span class="text-red-600 font-bold block mb-1">- 可以改進</span>
+                                <span class="text-xs text-gray-500">To improve</span>
+                            </div>
+                            <div class="bg-white p-3 rounded shadow-sm">
+                                <span class="text-purple-600 font-bold block mb-1">! 新的點子</span>
+                                <span class="text-xs text-gray-500">New Ideas</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="flex flex-col items-center justify-center bg-gray-100 rounded-xl p-8">
+                        <div class="text-6xl font-mono font-bold stanford-red-text timer-display mb-6" id="timer-test">
+                            08:00</div>
+                        <div class="flex space-x-4">
+                            <button onclick="startTimer('test', 480, '測試開始')"
+                                class="bg-gray-800 text-white px-6 py-2 rounded hover:bg-gray-700">開始測試</button>
+                            <button onclick="resetTimer('test', 480)"
+                                class="bg-white border border-gray-300 text-gray-700 px-6 py-2 rounded hover:bg-gray-50">重置</button>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="border-t pt-6">
+                    <h3 class="text-xl font-bold text-gray-800 mb-2">成果展示 (Showcase)</h3>
+                    <p class="text-gray-600">
+                        邀請 2-3 組自願者上台，展示他們的「爛原型」與「好故事」。<br>
+                        <span class="text-red-600 font-bold">老師點評重點：讚賞「洞察力」而非「美工能力」。</span>
+                    </p>
+                </div>
+            </div>
+
+            <div class="flex justify-between">
+                <button onclick="navTo('prototype')" class="text-gray-500 hover:text-gray-800">⬅ 上一步</button>
+                <div class="text-right">
+                    <p class="text-sm text-gray-500 mb-1">完成所有步驟了嗎？</p>
+                    <button onclick="showRecap()"
+                        class="stanford-red-bg text-white px-6 py-2 rounded font-bold hover:opacity-90">總結與頒獎 ➔</button>
+                </div>
+            </div>
+        </section>
+
+        <!-- 區塊：課程總結 (RECAP MODAL) -->
+        <div id="recap-modal"
+            class="fixed inset-0 bg-gray-900 z-50 hidden flex items-center justify-center animate-fade-in">
+            <div class="text-center text-white max-w-5xl px-6 w-full">
+                <h2 class="text-4xl font-bold mb-2 text-white">課程核心回顧</h2>
+                <p class="text-gray-400 mb-8">從紙上原型回到數位圖像設計</p>
+
+                <!-- 大型流程圖 -->
+                <div class="flex flex-wrap justify-center items-center gap-4 md:gap-6 mb-12">
+                    <!-- Step 1 -->
+                    <div class="flex flex-col items-center group">
+                        <div
+                            class="w-20 h-20 rounded-full border-4 border-red-500 bg-gray-800 flex items-center justify-center text-2xl font-bold text-white shadow-lg group-hover:scale-110 transition-transform">
+                            同理
+                        </div>
+                        <span class="text-xs text-gray-400 mt-2 uppercase tracking-wider">Empathize</span>
+                    </div>
+
+                    <!-- Arrow -->
+                    <div class="text-3xl text-gray-600">➔</div>
+
+                    <!-- Step 2 -->
+                    <div class="flex flex-col items-center group">
+                        <div
+                            class="w-20 h-20 rounded-full border-4 border-red-500 bg-gray-800 flex items-center justify-center text-2xl font-bold text-white shadow-lg group-hover:scale-110 transition-transform">
+                            定義
+                        </div>
+                        <span class="text-xs text-gray-400 mt-2 uppercase tracking-wider">Define</span>
+                    </div>
+
+                    <!-- Arrow -->
+                    <div class="text-3xl text-gray-600">➔</div>
+
+                    <!-- Step 3 -->
+                    <div class="flex flex-col items-center group">
+                        <div
+                            class="w-20 h-20 rounded-full border-4 border-red-500 bg-gray-800 flex items-center justify-center text-2xl font-bold text-white shadow-lg group-hover:scale-110 transition-transform">
+                            發想
+                        </div>
+                        <span class="text-xs text-gray-400 mt-2 uppercase tracking-wider">Ideate</span>
+                    </div>
+
+                    <!-- Arrow -->
+                    <div class="text-3xl text-gray-600">➔</div>
+
+                    <!-- Step 4 -->
+                    <div class="flex flex-col items-center group">
+                        <div
+                            class="w-20 h-20 rounded-full border-4 border-red-500 bg-gray-800 flex items-center justify-center text-2xl font-bold text-white shadow-lg group-hover:scale-110 transition-transform">
+                            原型
+                        </div>
+                        <span class="text-xs text-gray-400 mt-2 uppercase tracking-wider">Prototype</span>
+                    </div>
+
+                    <!-- Arrow -->
+                    <div class="text-3xl text-gray-600">➔</div>
+
+                    <!-- Step 5 -->
+                    <div class="flex flex-col items-center group">
+                        <div
+                            class="w-20 h-20 rounded-full border-4 border-red-500 bg-gray-800 flex items-center justify-center text-2xl font-bold text-white shadow-lg group-hover:scale-110 transition-transform">
+                            測試
+                        </div>
+                        <span class="text-xs text-gray-400 mt-2 uppercase tracking-wider">Test</span>
+                    </div>
+                </div>
+
+                <!-- 三大核心觀念 -->
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-6 text-left mb-12">
+
+                    <!-- 觀念 1 -->
+                    <div
+                        class="bg-gray-800 p-6 rounded-xl border border-gray-700 hover:border-blue-500 transition-colors group">
+                        <div class="text-4xl mb-4 group-hover:scale-110 transition-transform origin-left">📡</div>
+                        <h3 class="text-xl font-bold text-blue-400 mb-3">1. 資訊怎麼傳播？</h3>
+                        <p class="text-gray-300 text-sm leading-relaxed">
+                            透過<strong>「視覺化」</strong>與<strong>「實體化」</strong>。<br>
+                            圖像不只是裝飾，而是溝通介面。我們用草圖與模型 (Low-Fi) 快速傳遞概念，比千言萬語更直覺 (Show, Don't Tell)。
+                        </p>
+                    </div>
+
+                    <!-- 觀念 2 -->
+                    <div
+                        class="bg-gray-800 p-6 rounded-xl border border-gray-700 hover:border-yellow-500 transition-colors group">
+                        <div class="text-4xl mb-4 group-hover:scale-110 transition-transform origin-left">🎨</div>
+                        <h3 class="text-xl font-bold text-yellow-400 mb-3">2. 為何這麼設計？</h3>
+                        <p class="text-gray-300 text-sm leading-relaxed">
+                            所有的設計決策，都源自於<strong>「使用者的故事」</strong>。<br>
+                            不是為了做而做，是因為你在訪談中發現了他的痛點與需求 (Insights)，才產出了對應的功能。
+                        </p>
+                    </div>
+
+                    <!-- 觀念 3 -->
+                    <div
+                        class="bg-gray-800 p-6 rounded-xl border border-gray-700 hover:border-red-500 transition-colors group">
+                        <div class="text-4xl mb-4 group-hover:scale-110 transition-transform origin-left">🧩</div>
+                        <h3 class="text-xl font-bold text-red-400 mb-3">3. 解決什麼問題？</h3>
+                        <p class="text-gray-300 text-sm leading-relaxed">
+                            不僅是解決「功能性」問題，更是解決<strong>「心理層面」</strong>的問題。<br>
+                            我們設計的不是一個錢包，而是一種讓使用者感到安全、效率或被重視的體驗。
+                        </p>
+                    </div>
+
+                </div>
+
+                <button onclick="showAwards()"
+                    class="stanford-red-bg text-white px-10 py-4 rounded-full font-bold shadow-lg hover:opacity-90 hover:scale-105 transition-transform text-lg">
+                    前往頒獎典禮 🏆
+                </button>
+            </div>
+        </div>
+
+        <!-- 區塊：頒獎典禮 (AWARDS MODAL) -->
+        <div id="awards-modal"
+            class="fixed inset-0 bg-[#8C1515] z-50 hidden flex items-center justify-center animate-fade-in">
+            <div class="text-center text-white max-w-2xl px-4">
+                <h2 class="text-6xl font-bold mb-6 text-yellow-400">🏆 頒獎典禮</h2>
+                <h3 class="text-3xl mb-8">感謝大家這學期的投入！</h3>
+                <div class="flex justify-center gap-6 text-6xl mb-12">
+                    <span class="animate-bounce" style="animation-delay: 0s;">🥇</span>
+                    <span class="animate-bounce" style="animation-delay: 0.2s;">🥈</span>
+                    <span class="animate-bounce" style="animation-delay: 0.4s;">🥉</span>
+                </div>
+                <button onclick="closeAwards()"
+                    class="border border-white text-white px-8 py-3 rounded-full hover:bg-white hover:text-black transition-colors">
+                    返回工作坊
+                </button>
+            </div>
+        </div>
+
+    </main>
+
+    <!-- 頁尾 -->
+    <footer class="bg-gray-100 border-t border-gray-200 py-6 mt-8">
+        <div class="max-w-7xl mx-auto px-4 text-center text-gray-500 text-sm">
+            <p>設計思考工作坊 | 114-1 數位圖像製作實務 吳林展</p>
+        </div>
+    </footer>
+
+    <!-- 音效元素 -->
+    <!-- 鬧鐘聲：機械式鬧鐘鈴聲 (CC0/Google Sounds) -->
+    <audio id="alarm-sound" src="https://actions.google.com/sounds/v1/alarms/mechanical_clock_ring.ogg"
+        preload="auto"></audio>
+    <!-- 背景音樂：較長的 Lo-Fi 曲目 - 'Relaxing 5 mins' (CC0 from Pixabay) ~5:00 長度 -->
+    <audio id="bg-music" src="https://cdn.pixabay.com/audio/2022/08/02/audio_884fe92c21.mp3" loop
+        preload="auto"></audio>
+
+    <!-- JavaScript 邏輯程式 -->
+    <script>
+        // --- 1. 導航邏輯 ---
+        const views = ['intro', 'empathize', 'define', 'ideate', 'prototype', 'test'];
+
+        function navTo(viewId) {
+            // 隱藏所有頁面
+            views.forEach(id => {
+                document.getElementById(`view-${id}`).classList.add('hidden');
+                // 更新桌機版按鈕狀態
+                const btn = document.getElementById(`nav-${id}`);
+                if (btn) {
+                    if (id === viewId) {
+                        btn.classList.remove('step-inactive');
+                        btn.classList.add('step-active');
+                    } else {
+                        btn.classList.remove('step-active');
+                        btn.classList.add('step-inactive');
+                    }
+                }
+            });
+
+            // 顯示選定的頁面
+            const activeView = document.getElementById(`view-${viewId}`);
+            activeView.classList.remove('hidden');
+            // 捲動到頂部
+            window.scrollTo(0, 0);
+        }
+
+        function toggleMobileMenu() {
+            const menu = document.getElementById('mobile-menu');
+            menu.classList.toggle('hidden');
+        }
+
+        // --- 2. 計時器與音樂邏輯 ---
+        let timerIntervals = {};
+
+        function formatTime(seconds) {
+            const m = Math.floor(seconds / 60).toString().padStart(2, '0');
+            const s = (seconds % 60).toString().padStart(2, '0');
+            return `${m}:${s}`;
+        }
+
+        function startTimer(id, duration, labelText = '') {
+            // 先清除該 ID 已存在的計時器
+            if (timerIntervals[id]) clearInterval(timerIntervals[id]);
+
+            // 音效處理
+            const alarm = document.getElementById('alarm-sound');
+            const bgMusic = document.getElementById('bg-music');
+
+            // 重置並播放背景音樂
+            bgMusic.currentTime = 0;
+            bgMusic.volume = 0.3; // 設定較低音量以免干擾
+            bgMusic.play().catch(e => console.log("音樂自動播放可能被瀏覽器阻擋"));
+
+            // 預載鬧鐘聲
+            alarm.load();
+
+            const display = document.getElementById(`timer-${id}`);
+
+            // 如果有提供標籤文字，則更新狀態顯示
+            if (labelText) {
+                const statusDisplay = document.getElementById(`status-${id}`);
+                if (statusDisplay) {
+                    statusDisplay.textContent = labelText;
+                    statusDisplay.classList.remove('animate-pulse'); // 計時中移除閃爍效果
+                }
+            }
+
+            let timeLeft = duration;
+
+            // 立即更新顯示
+            display.textContent = formatTime(timeLeft);
+
+            timerIntervals[id] = setInterval(() => {
+                timeLeft--;
+                display.textContent = formatTime(timeLeft);
+
+                if (timeLeft <= 0) {
+                    clearInterval(timerIntervals[id]);
+                    display.classList.add('animate-pulse');
+                    display.style.color = 'red';
+
+                    // 停止音樂並播放鬧鐘
+                    bgMusic.pause();
+                    bgMusic.currentTime = 0;
+                    alarm.currentTime = 0;
+                    alarm.play().catch(e => console.log("鬧鐘播放失敗", e));
+
+                    // 重新讓狀態標籤閃爍以吸引注意
+                    const statusDisplay = document.getElementById(`status-${id}`);
+                    if (statusDisplay) statusDisplay.classList.add('animate-pulse');
+                }
+            }, 1000);
+        }
+
+        function resetTimer(id, duration, labelText = '') {
+            if (timerIntervals[id]) clearInterval(timerIntervals[id]);
+            const display = document.getElementById(`timer-${id}`);
+            display.textContent = formatTime(duration);
+            display.classList.remove('animate-pulse');
+            display.style.color = ''; // 重置顏色
+
+            // 重置標籤文字
+            if (labelText) {
+                const statusDisplay = document.getElementById(`status-${id}`);
+                if (statusDisplay) {
+                    statusDisplay.textContent = labelText;
+                    statusDisplay.classList.add('animate-pulse'); // 回復到準備狀態的閃爍
+                }
+            }
+
+            // 重置所有音效
+            const bgMusic = document.getElementById('bg-music');
+            const alarm = document.getElementById('alarm-sound');
+            bgMusic.pause();
+            bgMusic.currentTime = 0;
+            alarm.pause();
+            alarm.currentTime = 0;
+        }
+
+        // --- 3. POV 產生器邏輯 ---
+        function generatePOV() {
+            const name = document.getElementById('pov-name').value || '[名字]';
+            const need = document.getElementById('pov-need').value || '[動詞]';
+            const insight = document.getElementById('pov-insight').value || '[洞察]';
+
+            const resultDiv = document.getElementById('pov-result');
+            resultDiv.innerHTML = `
+                <h3 class="text-xl font-bold text-red-800 mb-2">觀點聲明 (Point of View)</h3>
+                <p class="text-lg leading-relaxed text-gray-800">
+                    我的夥伴 <span class="font-bold border-b-2 border-red-500">${name}</span><br>
+                    需要一種方式來 <span class="font-bold border-b-2 border-red-500">${need}</span><br>
+                    因為令人驚訝的是 <span class="font-bold border-b-2 border-red-500">${insight}</span>
+                </p>
+            `;
+            resultDiv.classList.add('bg-white');
+            resultDiv.classList.remove('bg-yellow-50');
+            resultDiv.classList.remove('border-dashed');
+            resultDiv.classList.add('shadow-md');
+        }
+
+        // --- 4. 頒獎與總結邏輯 ---
+        function showRecap() {
+            document.getElementById('recap-modal').classList.remove('hidden');
+        }
+
+        function showAwards() {
+            document.getElementById('recap-modal').classList.add('hidden');
+            document.getElementById('awards-modal').classList.remove('hidden');
+        }
+
+        function closeAwards() {
+            document.getElementById('awards-modal').classList.add('hidden');
+            navTo('intro');
+        }
+
+        // --- 5. Chart.js 初始化 ---
+        document.addEventListener('DOMContentLoaded', function () {
+
+            // 圖表 1：時間分配 (甜甜圈圖)
+            const ctx1 = document.getElementById('timeAllocationChart').getContext('2d');
+            new Chart(ctx1, {
+                type: 'doughnut',
+                data: {
+                    labels: ['同理 (Empathize)', '定義 (Define)', '發想 (Ideate)', '原型 (Prototype)', '測試 (Test)'],
+                    datasets: [{
+                        data: [16, 3, 15, 25, 8],
+                        backgroundColor: [
+                            '#FCA5A5', // 紅色 300
+                            '#F87171', // 紅色 400
+                            '#EF4444', // 紅色 500
+                            '#B91C1C', // 紅色 700 (主要焦點)
+                            '#7F1D1D'  // 紅色 900
+                        ],
+                        borderWidth: 0
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            position: 'right',
+                            labels: { font: { family: "'Noto Sans TC', sans-serif" } }
+                        },
+                        title: {
+                            display: true,
+                            text: '分鐘數分配 (核心實作約 67 分鐘 + 緩衝)',
+                            font: { size: 14 }
+                        }
+                    }
+                }
+            });
+
+            // 圖表 2：修改成本 vs. 原型保真度 (折線圖) - 概念說明
+            const ctx2 = document.getElementById('fidelityChart').getContext('2d');
+            new Chart(ctx2, {
+                type: 'line',
+                data: {
+                    labels: ['草圖 (Sketch)', '低保真 (Low-Fi)', '線框圖 (Wireframe)', '高保真 (Hi-Fi)', '開發 (Code)'],
+                    datasets: [{
+                        label: '修改成本 (Cost of Change)',
+                        data: [10, 20, 30, 80, 150],
+                        borderColor: '#EF4444',
+                        backgroundColor: 'rgba(239, 68, 68, 0.1)',
+                        fill: true,
+                        tension: 0.4
+                    },
+                    {
+                        label: '學習速度 (Learning Speed)',
+                        data: [90, 85, 70, 40, 10],
+                        borderColor: '#3B82F6',
+                        borderDash: [5, 5],
+                        tension: 0.4
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            title: { display: true, text: '程度 (High/Low)' },
+                            ticks: { display: false }
+                        }
+                    },
+                    plugins: {
+                        tooltip: {
+                            callbacks: {
+                                label: function (context) {
+                                    return context.dataset.label + ': ' + context.parsed.y;
+                                }
+                            }
+                        }
+                    }
+                }
+            });
+
+        });
+    </script>
+
+    <!-- 確認事項：本頁面未使用 SVG 圖檔，而是使用 Chart.js Canvas 與字體圖示。未使用 Mermaid JS。 -->
+</body>
+
+</html>
