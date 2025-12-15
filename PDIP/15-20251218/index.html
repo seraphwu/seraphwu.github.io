@@ -17,7 +17,7 @@
             color: #333;
         }
 
-        /* 自訂捲軸樣式，讓畫面看起來更乾淨 */
+        /* 自訂捲軸樣式 */
         ::-webkit-scrollbar {
             width: 8px;
         }
@@ -35,7 +35,7 @@
             background: #8C1515;
         }
 
-        /* 圖表容器設定：限制最大寬度與高度，避免在大螢幕上跑版 */
+        /* 圖表容器設定 */
         .chart-container {
             position: relative;
             width: 100%;
@@ -52,14 +52,13 @@
             }
         }
 
-        /* 導航列樣式：當前步驟 */
+        /* 導航列樣式 */
         .step-active {
             border-bottom: 4px solid #8C1515;
             color: #8C1515;
             font-weight: 700;
         }
 
-        /* 導航列樣式：非當前步驟 */
         .step-inactive {
             border-bottom: 4px solid transparent;
             color: #6b7280;
@@ -92,15 +91,16 @@
         .timer-display {
             font-variant-numeric: tabular-nums;
         }
+        
+        /* 歡迎頁面專用樣式 */
+        .welcome-container {
+            min-height: 80vh;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+        }
     </style>
-    <!-- 選用配色方案：以史丹佛大學標準紅 (#8C1515) 與冷灰色 (#4D4F53) 為主，搭配溫暖舒適的米白背景 (#fdfbf7)，營造專業且不刺眼的工作坊氛圍。 -->
-    <!-- 應用程式架構規劃：
-         這裡設計成一個「線性工作坊嚮導」。
-         1. 總覽儀表板 (Overview Dashboard)：用來展示時間分配和核心規則，幫學生建立心理準備。
-         2. 分步驟導航 (Tabbed Navigation)：讓學生能依序經歷設計思考的五大階段（同理、定義、發想、原型、測試），不會迷路。
-         3. 階段專屬工具 (Interactive Tools)：每個階段都放了該步驟需要的工具，像是計時器、輸入框或是圖表，隨手可用。
-         4. 設計理由 (Justification)：這樣的結構完全對應工作坊的時間軸，能讓學生專注在當下的任務，需要計時器的時候它就在手邊，不用手忙腳亂找工具。
-    -->
 </head>
 
 <body class="flex flex-col min-h-screen">
@@ -109,14 +109,15 @@
     <header class="bg-white shadow-sm sticky top-0 z-50">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div class="flex justify-between items-center h-16">
-                <div class="flex items-center">
+                <!-- 點擊標題回到歡迎頁 -->
+                <div class="flex items-center cursor-pointer hover:opacity-80 transition-opacity" onclick="navTo('welcome')">
                     <span class="text-2xl mr-2">👛</span>
                     <h1 class="text-xl font-bold text-gray-800 tracking-wide">錢包計畫 <span
                             class="text-sm font-normal text-gray-500 hidden sm:inline">| 設計思考工作坊</span></h1>
                 </div>
                 <div class="hidden md:flex space-x-1">
                     <button onclick="navTo('intro')" id="nav-intro"
-                        class="px-3 py-2 text-sm step-active transition-colors">總覽</button>
+                        class="px-3 py-2 text-sm step-inactive transition-colors">總覽</button>
                     <button onclick="navTo('empathize')" id="nav-empathize"
                         class="px-3 py-2 text-sm step-inactive transition-colors">1.同理</button>
                     <button onclick="navTo('define')" id="nav-define"
@@ -128,7 +129,7 @@
                     <button onclick="navTo('test')" id="nav-test"
                         class="px-3 py-2 text-sm step-inactive transition-colors">5.測試</button>
                 </div>
-                <!-- 手機版選單按鈕 (簡化版) -->
+                <!-- 手機版選單按鈕 -->
                 <button onclick="toggleMobileMenu()" class="md:hidden p-2 text-gray-600">
                     <span class="text-2xl">☰</span>
                 </button>
@@ -137,6 +138,7 @@
         <!-- 手機版下拉選單 -->
         <div id="mobile-menu" class="hidden md:hidden bg-gray-50 border-t border-gray-200">
             <div class="flex flex-col px-4 py-2 space-y-2">
+                <button onclick="navTo('welcome')" class="text-left py-2 font-bold text-gray-800">首頁</button>
                 <button onclick="navTo('intro')" class="text-left py-2 font-medium">總覽</button>
                 <button onclick="navTo('empathize')" class="text-left py-2 text-gray-600">1. 同理 (Empathize)</button>
                 <button onclick="navTo('define')" class="text-left py-2 text-gray-600">2. 定義 (Define)</button>
@@ -150,19 +152,39 @@
     <!-- 主要內容區 -->
     <main class="flex-grow max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-8">
 
-        <!-- 區塊：開場與總覽 (INTRO & OVERVIEW) -->
-        <section id="view-intro" class="animate-fade-in">
-            <!-- 課程金句 -->
-            <div class="text-center mb-10">
-                <blockquote class="text-2xl md:text-3xl font-light italic text-gray-700 mb-4">
-                    "Design is not just what it looks like and feels like.<br>
-                    <span class="stanford-red-text font-bold">Design is how it works.</span>"
-                </blockquote>
-                <p class="text-gray-500">- Steve Jobs</p>
-                <p class="mt-4 max-w-2xl mx-auto text-gray-600 leading-relaxed">
-                    歡迎來到數位圖像製作實務課程的期末工作坊。在這裡，漂亮的圖像只是「表皮」，解決問題的流程才是「靈魂」。
-                    今天我們將暫時放下滑鼠與繪圖軟體，透過 90 分鐘的實作，體驗以人為本的設計流程。
-                </p>
+        <!-- 區塊：歡迎頁面 (WELCOME) -->
+        <section id="view-welcome" class="animate-fade-in welcome-container text-center">
+            <div class="max-w-4xl mx-auto px-4">
+                <div class="mb-12">
+                    <span class="text-6xl block mb-6 animate-bounce">💡</span>
+                    <blockquote class="text-3xl md:text-4xl font-light italic text-gray-800 mb-6 leading-relaxed">
+                        "Design is not just what it looks like and feels like.<br>
+                        <span class="stanford-red-text font-bold">Design is how it works.</span>"
+                    </blockquote>
+                    <p class="text-gray-500 font-medium tracking-widest uppercase">- Steve Jobs</p>
+                </div>
+                
+                <div class="bg-white p-8 rounded-xl shadow-sm border-t-4 border-red-800 max-w-2xl mx-auto">
+                    <p class="text-lg text-gray-600 leading-relaxed text-left">
+                        歡迎來到數位圖像製作實務課程的期末工作坊。<br><br>
+                        在這裡，漂亮的圖像只是「表皮」，解決問題的流程才是「靈魂」。<br>
+                        今天我們將暫時放下滑鼠與繪圖軟體，透過 90 分鐘的實作，體驗以人為本的設計流程。
+                    </p>
+                    <div class="mt-8 text-center">
+                        <button onclick="navTo('intro')"
+                            class="stanford-red-bg text-white px-10 py-4 rounded-full font-bold shadow-lg hover:opacity-90 transition-transform transform hover:scale-105 text-lg">
+                            進入工作坊概覽 ➔
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- 區塊：儀表板總覽 (INTRO / DASHBOARD) -->
+        <section id="view-intro" class="hidden animate-fade-in">
+            <div class="mb-8 border-b pb-4">
+                <h2 class="text-3xl font-bold text-gray-800">工作坊總覽</h2>
+                <p class="text-gray-500">準備好你的工具，我們即將開始。</p>
             </div>
 
             <div class="grid grid-cols-1 lg:grid-cols-2 gap-8 items-start">
@@ -178,11 +200,6 @@
                     <div class="chart-container">
                         <canvas id="timeAllocationChart"></canvas>
                     </div>
-                    <!-- 視覺化選擇說明：
-                         目標：讓學生了解工作坊的結構與節奏。
-                         方法：使用 Chart.js 的甜甜圈圖。
-                         理由：甜甜圈圖可以很直觀地顯示各階段佔比，尤其凸顯「原型製作」佔了最大塊，強調這堂課的核心是「動手做」。
-                    -->
                 </div>
 
                 <!-- 核心規則卡片 -->
@@ -209,7 +226,7 @@
                     <div class="mt-6 text-center">
                         <button onclick="navTo('empathize')"
                             class="stanford-red-bg text-white px-8 py-3 rounded-full font-bold shadow-lg hover:opacity-90 transition-transform transform hover:scale-105">
-                            開始工作坊 ➔
+                            開始 STEP 1：同理心 ➔
                         </button>
                     </div>
                 </div>
@@ -448,14 +465,13 @@
                 <div class="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-8">
                     <div>
                         <p class="text-gray-600 mb-4">
-                            <strong>Visualizing the Solution (將解法視覺化)</strong><br>
-                            因應資傳系特性，請利用紙筆，將你的解決方案繪製出來。不管是介面流程圖 (User Flow) 還是分鏡腳本 (Storyboard)。<br>
-                            目標是讓你的夥伴可以透過圖面「走一遍流程」。
+                            <strong>Thinking with your hands (邊做邊想)。</strong><br>
+                            利用桌上的材料（剪刀、紙、膠帶），把你的想法變成「立體」的。目標是讓你的夥伴可以「拿在手上」或「實際操作」。
                         </p>
                         <div class="bg-red-50 p-4 rounded-lg border border-red-100">
-                            <h4 class="font-bold text-red-800 mb-2">Paper Prototyping (紙上原型)</h4>
+                            <h4 class="font-bold text-red-800 mb-2">如果是 App 設計...</h4>
                             <p class="text-sm text-red-700">
-                                如果是 App 設計，請畫出關鍵的 3-5 個畫面（Wireframe）。模擬點擊後的畫面切換，讓使用者真的可以「按」到按鈕。
+                                請用紙畫出 Wireframe (線框圖)，並剪下來。模擬點擊後的畫面切換，讓使用者真的可以「按」到按鈕。
                             </p>
                         </div>
                     </div>
@@ -476,7 +492,7 @@
 
                 <div
                     class="flex flex-col items-center justify-center bg-gray-100 rounded-xl p-8 border-2 border-dashed border-gray-300">
-                    <h3 class="text-xl mb-2 font-bold text-gray-700">原型繪製時間</h3>
+                    <h3 class="text-xl mb-2 font-bold text-gray-700">動手製作時間</h3>
                     <div class="text-6xl font-mono font-bold text-gray-800 timer-display mb-6" id="timer-prototype">
                         25:00</div>
                     <div class="flex space-x-4">
@@ -695,7 +711,7 @@
     <!-- 頁尾 -->
     <footer class="bg-gray-100 border-t border-gray-200 py-6 mt-8">
         <div class="max-w-7xl mx-auto px-4 text-center text-gray-500 text-sm">
-            <p>設計思考工作坊 | 114-1 數位圖像製作實務 吳林展</p>
+            <p>114-1 數位圖像製作實務 | 授課教師：吳林展</p>
             <p class="mt-2 text-xs">
                 背景音樂來源: <a href="https://www.youtube.com/watch?v=DkD3dJaqjcE" target="_blank"
                     class="hover:text-[#8C1515] underline">Relaxing Jazz Piano</a>
@@ -707,14 +723,14 @@
     <!-- 鬧鐘聲：機械式鬧鐘鈴聲 (CC0/Google Sounds) -->
     <audio id="alarm-sound" src="https://actions.google.com/sounds/v1/alarms/mechanical_clock_ring.ogg"
         preload="auto"></audio>
-    <!-- 背景音樂 -->
+    <!-- 背景音樂：Dropbox Direct Link -->
     <audio id="bg-music" src="https://dl.dropboxusercontent.com/scl/fi/hg5x1npsqnlx1evgs9emy/lofi.mp3?rlkey=qnss0c0lwi8jdpqh529sgzq1u&st=ax898iwr" loop
         preload="auto"></audio>
 
     <!-- JavaScript 邏輯程式 -->
     <script>
         // --- 1. 導航邏輯 ---
-        const views = ['intro', 'empathize', 'define', 'ideate', 'prototype', 'test'];
+        const views = ['welcome', 'intro', 'empathize', 'define', 'ideate', 'prototype', 'test'];
 
         function navTo(viewId) {
             // 隱藏所有頁面
