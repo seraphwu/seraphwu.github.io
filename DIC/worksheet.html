@@ -1,0 +1,381 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>學習單：錢包計畫設計思考工作坊</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@300;400;700&display=swap');
+        
+        body {
+            font-family: 'Noto Sans TC', sans-serif;
+            background-color: #555; /* 網頁背景深色，突顯紙張 */
+            color: #333;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 20px;
+        }
+
+        /* A4 紙張模擬 */
+        .paper-sheet {
+            background-color: white;
+            width: 210mm;
+            min-height: 297mm;
+            padding: 15mm 20mm; /* 稍微調整邊距以容納更多內容 */
+            box-shadow: 0 0 15px rgba(0,0,0,0.3);
+            margin-bottom: 20px;
+            position: relative;
+            box-sizing: border-box;
+        }
+
+        .stanford-red { color: #8C1515; }
+        .bg-stanford-red { background-color: #8C1515; }
+        .border-stanford-red { border-color: #8C1515; }
+
+        /* 輸入框樣式 */
+        input.line-input {
+            border-bottom: 1px solid #333;
+            padding: 2px 5px;
+            outline: none;
+            background: transparent;
+            font-family: inherit;
+        }
+
+        /* 區域輸入框 - 螢幕顯示時有底色，列印時變白 */
+        textarea {
+            width: 100%;
+            border: 1px solid #ddd;
+            background-color: #f9fafb;
+            border-radius: 4px;
+            padding: 8px;
+            font-size: 0.9rem;
+            resize: none;
+            outline: none;
+        }
+
+        /* 繪圖區塊 */
+        .draw-zone {
+            border: 2px dashed #ccc;
+            border-radius: 4px;
+            background-color: #fff;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #ccc;
+            text-align: center;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        /* 步驟標題 */
+        .step-header {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 10px;
+            border-bottom: 2px solid #eee;
+            padding-bottom: 5px;
+        }
+        .step-num {
+            background-color: #333;
+            color: white;
+            width: 24px;
+            height: 24px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 14px;
+            font-weight: bold;
+        }
+
+        /* 列印專用設定 (核心) */
+        @media print {
+            body { 
+                background-color: white; 
+                padding: 0;
+                margin: 0;
+            }
+            
+            .paper-sheet {
+                box-shadow: none;
+                width: 100%;
+                /* height: 100%;  Removing fixed height to let content flow naturally but respecting page breaks */
+                min-height: auto;
+                margin: 0;
+                padding: 10mm 15mm;
+                page-break-after: always; /* 強制換頁 */
+                display: block;
+            }
+            .paper-sheet:last-child {
+                page-break-after: auto;
+            }
+
+            .no-print { display: none !important; }
+
+            /* 隱藏 Placeholder */
+            input::placeholder, textarea::placeholder {
+                color: transparent !important;
+                opacity: 0;
+            }
+
+            /* 繪圖區變乾淨的框，顏色統一改為 #ccc */
+            .draw-zone {
+                border: 1px solid #ccc !important; /* 淺灰色實線框方便手繪 */
+                color: transparent !important;     /* 隱藏 "繪圖區" 文字 */
+            }
+            .draw-zone * {
+                display: none !important;          /* 隱藏內部提示 */
+            }
+
+            /* 輸入框去底色，邊框改為點狀虛線，並強制移除 resize 把手 */
+            textarea {
+                background-color: white !important;
+                border: 1px dotted #999 !important;
+                resize: none !important; /* 移除右下角調整大小圖示 */
+            }
+            
+            /* 顏色調整 */
+            .step-num { background-color: #000 !important; color: #fff !important; }
+            h1, h2, h3 { color: #000 !important; }
+            
+            /* User Flow 區塊邊框也統一為淺灰，並移除分隔線 */
+            .user-flow-box {
+                border: 1px solid #ccc !important;
+                position: relative;
+            }
+            
+            /* 移除每格中間的水平分隔線 */
+            .user-flow-box::after {
+                display: none; 
+            }
+
+            /* === 空間壓縮：確保兩頁放得下 === */
+            
+            /* 1. 標題縮小 */
+            h1 { font-size: 1.4rem !important; margin-bottom: 0.2rem !important; }
+            .step-header { margin-bottom: 5px !important; padding-bottom: 2px !important; }
+            
+            /* 2. 區塊間距縮減 */
+            .mb-10, .mb-8 { margin-bottom: 0.8rem !important; }
+            .pb-6 { padding-bottom: 0.2rem !important; }
+            
+            /* 3. 繪圖區高度調整 */
+            .draw-zone.h-\[300px\] { height: 180px !important; } /* 原型區稍微縮小以容納測試區 */
+            
+            /* 4. 輸入框高度控制 */
+            textarea[rows="4"] { height: 4.5em !important; } /* Step 1 縮小一點 */
+            textarea[rows="8"] { height: 10em !important; } /* Step 5 測試區加大 */
+            textarea[rows="2"] { height: 2.5em !important; }
+            
+            /* 5. 調整列表與內部間距 */
+            .space-y-6 > :not([hidden]) ~ :not([hidden]) { margin-top: 0.8rem !important; }
+            .space-y-4 > :not([hidden]) ~ :not([hidden]) { margin-top: 0.5rem !important; }
+
+            /* 6. 強制頁尾緊湊 */
+            .footer-section {
+                margin-top: 1rem !important;
+                padding-top: 0.5rem !important;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- 控制列 -->
+    <div class="fixed bottom-6 right-6 flex gap-4 no-print z-50">
+        <div class="bg-gray-800 text-white px-4 py-2 rounded-lg shadow-lg text-sm">
+            <p>💡 提示：按下列印後，請確認「頁首/頁尾」選項已關閉。</p>
+        </div>
+        <button onclick="window.print()" class="bg-red-700 text-white px-6 py-3 rounded-full shadow-lg hover:bg-red-800 transition flex items-center gap-2 font-bold cursor-pointer">
+            🖨️ 列印 / 存成 PDF
+        </button>
+    </div>
+
+    <!-- ===== 第一頁：前半段流程 ===== -->
+    <div class="paper-sheet">
+        <header class="border-b-2 border-black pb-4 mb-6">
+            <div class="flex justify-between items-end">
+                <h1 class="text-2xl font-bold">設計思考工作坊：錢包計畫</h1>
+                <span class="text-sm text-gray-500">114-1 數位圖像製作實務 吳林展 2025/12/18</span>
+            </div>
+            <!-- 修改區塊：新增班級與學號，調整寬度與間距以防換行 -->
+            <div class="flex flex-wrap gap-x-4 gap-y-2 mt-4 text-sm justify-between">
+                <div class="whitespace-nowrap">班級：<input type="text" class="line-input w-16"></div>
+                <div class="whitespace-nowrap">學號：<input type="text" class="line-input w-24"></div>
+                <div class="whitespace-nowrap">設計師：<input type="text" class="line-input w-20" placeholder="(姓名)"></div>
+                <div class="whitespace-nowrap">夥伴：<input type="text" class="line-input w-20" placeholder="(姓名)"></div>
+            </div>
+        </header>
+
+        <!-- STEP 1 -->
+        <section class="mb-8">
+            <div class="step-header">
+                <div class="step-num">1</div>
+                <h2 class="text-lg font-bold">同理心 (Empathize)</h2>
+                <span class="text-xs text-gray-500 ml-auto">聽故事，找痛點</span>
+            </div>
+            <div class="grid grid-cols-2 gap-4">
+                <div>
+                    <h3 class="text-sm font-bold mb-1">Round 1: 廣度訪談</h3>
+                    <p class="text-xs text-gray-400 mb-1">這張收據的故事？為何放這？</p>
+                    <textarea rows="4" placeholder="記錄關鍵字、物品..."></textarea>
+                </div>
+                <div>
+                    <h3 class="text-sm font-bold mb-1">Round 2: 深度挖掘</h3>
+                    <p class="text-xs text-gray-400 mb-1">問「為什麼？」尋找情緒起伏</p>
+                    <textarea rows="4" placeholder="記錄焦慮、開心、矛盾點..."></textarea>
+                </div>
+            </div>
+        </section>
+
+        <!-- STEP 2 -->
+        <section class="mb-8">
+            <div class="step-header">
+                <div class="step-num">2</div>
+                <h2 class="text-lg font-bold">定義問題 (Define)</h2>
+                <span class="text-xs text-gray-500 ml-auto">觀點聲明 (POV)</span>
+            </div>
+            <div class="border border-gray-300 p-4 rounded bg-gray-50">
+                <div class="space-y-4 text-base leading-loose">
+                    <div class="flex items-baseline">
+                        <span>我的夥伴</span>
+                        <input type="text" class="line-input flex-1 text-center font-bold" placeholder="(夥伴名字)">
+                    </div>
+                    <div class="flex items-baseline">
+                        <span>需要一種方式來</span>
+                        <input type="text" class="line-input flex-1 text-center font-bold" placeholder="(動詞：深層需求)">
+                    </div>
+                    <div class="flex items-baseline">
+                        <span>因為令人驚訝的是</span>
+                        <input type="text" class="line-input flex-1 text-center font-bold" placeholder="(洞察：發現的驚喜)">
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- STEP 3 -->
+        <section>
+            <div class="step-header">
+                <div class="step-num">3</div>
+                <h2 class="text-lg font-bold">創意發想 (Ideate)</h2>
+                <span class="text-xs text-gray-500 ml-auto">重質不重量，用畫的！</span>
+            </div>
+            <div class="grid grid-cols-3 gap-3">
+                <div class="text-center">
+                    <span class="text-xs font-bold block mb-1">方案 A (安全)</span>
+                    <div class="draw-zone h-44"></div> <!-- 加大為 h-44 -->
+                </div>
+                <div class="text-center">
+                    <span class="text-xs font-bold block mb-1">方案 B (瘋狂)</span>
+                    <div class="draw-zone h-44"></div> <!-- 加大為 h-44 -->
+                </div>
+                <div class="text-center">
+                    <span class="text-xs font-bold block mb-1">方案 C (純數位)</span>
+                    <div class="draw-zone h-44"></div> <!-- 加大為 h-44 -->
+                </div>
+                <div class="text-center">
+                    <span class="text-xs font-bold block mb-1">方案 D (無預算)</span>
+                    <div class="draw-zone h-44"></div> <!-- 加大為 h-44 -->
+                </div>
+                <div class="col-span-2 text-center">
+                    <span class="text-xs font-bold text-red-600 block mb-1">★ 最終方案 (Final Idea)</span>
+                    <div class="draw-zone h-44 border-red-200"></div> <!-- 加大為 h-44 -->
+                </div>
+            </div>
+        </section>
+    </div>
+
+    <!-- ===== 第二頁：原型與測試 ===== -->
+    <div class="paper-sheet">
+        <!-- STEP 4 -->
+        <section class="mb-8">
+            <div class="step-header">
+                <div class="step-num">4</div>
+                <h2 class="text-lg font-bold">原型製作 (Prototype)</h2>
+                <span class="text-xs text-gray-500 ml-auto">視覺化解法</span>
+            </div>
+            
+            <p class="text-sm mb-2 text-gray-600"><strong>任務：</strong>請利用紙筆將解法視覺化。<br>如果是<strong>App</strong>，請畫出介面流程；如果是<strong>實體皮包</strong>，請畫出外觀、內部結構或使用情境。</p>
+            
+            <!-- 三格分鏡設計 (適應介面與實體) -->
+            <div class="grid grid-cols-3 gap-4 h-64">
+                <div class="flex flex-col h-full">
+                    <div class="text-xs font-bold mb-1 text-center">1. 情境 / 外觀</div>
+                    <!-- 列印時高度會被 CSS 縮減，且不顯示分隔線 -->
+                    <div class="draw-zone w-full h-[300px] flex-1 bg-white border-2 border-gray-400 user-flow-box"></div>
+                </div>
+                <div class="flex flex-col h-full">
+                    <div class="text-xs font-bold mb-1 text-center">2. 互動 / 結構</div>
+                    <div class="draw-zone w-full h-[300px] flex-1 bg-white border-2 border-gray-400 user-flow-box"></div>
+                </div>
+                <div class="flex flex-col h-full">
+                    <div class="text-xs font-bold mb-1 text-center">3. 結果 / 情境</div>
+                    <div class="draw-zone w-full h-[300px] flex-1 bg-white border-2 border-gray-400 user-flow-box"></div>
+                </div>
+            </div>
+        </section>
+
+        <!-- STEP 5 -->
+        <section class="mb-8">
+            <div class="step-header">
+                <div class="step-num">5</div>
+                <h2 class="text-lg font-bold">測試與回饋 (Test)</h2>
+                <span class="text-xs text-gray-500 ml-auto">驗證假設</span>
+            </div>
+            <div class="grid grid-cols-2 gap-4">
+                <div>
+                    <h3 class="text-xs font-bold mb-1">✅ 喜歡的地方</h3>
+                    <textarea rows="8"></textarea> <!-- 加大為 8 行 -->
+                </div>
+                <div>
+                    <h3 class="text-xs font-bold mb-1">❓ 疑問與困惑</h3>
+                    <textarea rows="8"></textarea> <!-- 加大為 8 行 -->
+                </div>
+                <div>
+                    <h3 class="text-xs font-bold mb-1">🔻 可以改進</h3>
+                    <textarea rows="8"></textarea> <!-- 加大為 8 行 -->
+                </div>
+                <div>
+                    <h3 class="text-xs font-bold mb-1">💡 新的點子</h3>
+                    <textarea rows="8"></textarea> <!-- 加大為 8 行 -->
+                </div>
+            </div>
+        </section>
+
+        <!-- REFLECTION -->
+        <section>
+            <div class="step-header" style="border-bottom: 2px solid #333;">
+                <span class="text-xl">🏆</span>
+                <h2 class="text-lg font-bold">課程核心回顧 (Reflection)</h2>
+            </div>
+            <div class="space-y-4 mt-4 text-xs">
+                <!-- Point 1 -->
+                <div class="border-l-4 border-gray-300 pl-3 flex flex-row items-baseline gap-2">
+                    <h3 class="font-bold text-gray-800 whitespace-nowrap">1. 資訊怎麼傳播？</h3>
+                    <p class="text-gray-600">視覺化的力量…</p>
+                </div>
+                <!-- Point 2 -->
+                <div class="border-l-4 border-gray-300 pl-3 flex flex-row items-baseline gap-2">
+                    <h3 class="font-bold text-gray-800 whitespace-nowrap">2. 為何這麼設計？</h3>
+                    <p class="text-gray-600">永遠要清楚為什麼…</p>
+                </div>
+                <!-- Point 3 -->
+                <div class="border-l-4 border-gray-300 pl-3 flex flex-row items-baseline gap-2">
+                    <h3 class="font-bold text-gray-800 whitespace-nowrap">3. 解決什麼問題？</h3>
+                    <p class="text-gray-600">設計是一種解決問題的方法…</p>
+                </div>
+                <!-- Point 4 -->
+                <div class="border-l-4 border-gray-300 pl-3 flex flex-row items-baseline gap-2">
+                    <h3 class="font-bold text-gray-800 whitespace-nowrap">4. 排版與視覺層級</h3>
+                    <p class="text-gray-600">善用字體、字重、行距、段落前後距離，讓文字可以看出重點。</p>
+                </div>
+            </div>
+        </section>
+
+    </div>
+
+</body>
+</html>
