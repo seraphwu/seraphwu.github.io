@@ -132,7 +132,16 @@
             /* 5. 卡片列表樣式 */
             .day-group { margin-bottom: 20px; background: #fff; border-radius: 12px; overflow: hidden; box-shadow: 0 2px 10px rgba(0,0,0,0.05); border: 1px solid #f0f0f0; }
             .day-group.hidden-day { display: none; } /* 用於週次篩選 */
-            .day-header { background-color: #2c3e50; color: white; padding: 10px 15px; font-size: 1.1em; font-weight: bold; position: sticky; top: 130px; z-index: 90; }
+            
+            /* ★ 修正：取消 sticky，改為一般相對定位，解決擋住第2節的問題 */
+            .day-header { 
+                background-color: #2c3e50; 
+                color: white; 
+                padding: 10px 15px; 
+                font-size: 1.1em; 
+                font-weight: bold; 
+                position: relative; /* 關鍵修改 */
+            }
             
             .day-body { padding: 0 10px; }
             
@@ -237,8 +246,6 @@
                 })
                 .then(data => {
                     document.getElementById('loading-msg').style.display = 'none';
-                    // 根據螢幕寬度決定顯示哪個容器 (CSS 已處理，這裡只是開啟 display)
-                    // 但實際上 CSS media query 會蓋過這裡，所以不需要特別寫 JS 判斷
                     document.querySelector('.table-container').style.display = ''; 
                     
                     if(data.metadata && data.metadata.semester) {
@@ -286,7 +293,7 @@
             });
         }
 
-        // 4. 主排程生成 (同時產生 PC 表格 與 Mobile 卡片)
+        // 4. 主排程生成
         function initSchedule(data) {
             const tableBody = document.getElementById('tableBody');
             const timeSlots = data.timeSlots;
