@@ -17,9 +17,8 @@
             position: sticky; top: 10px; z-index: 100; 
         }
         
-        /* 手機版篩選器切換按鈕 */
         .filter-toggle-btn { display: none; } 
-        .filter-section { display: block; } /* PC版預設展開 */
+        .filter-section { display: block; } 
 
         .filter-group { 
             margin: 10px 0; padding-bottom: 10px; border-bottom: 1px dashed #eee; 
@@ -41,7 +40,6 @@
             box-shadow: 0 2px 6px rgba(44, 62, 80, 0.3); font-weight: 500;
         }
         
-        /* 下拉選單 */
         .filter-select { padding: 6px 12px; border-radius: 8px; border: 1px solid #ccc; font-size: 14px; outline: none; background: #fff; }
 
         /* --- 圖例 --- */
@@ -61,7 +59,7 @@
         td.time { font-size: 12px; color: #7f8c8d; background-color: #f9f9f9; vertical-align: middle; }
         tr.lunch td { background-color: #fffcf5; color: #d35400; }
 
-        /* --- 課程卡片樣式 (共用) --- */
+        /* --- 課程卡片樣式 --- */
         .course-item { margin-bottom: 8px; padding: 10px; border-radius: 8px; border-left: 4px solid #ccc; background-color: #fafafa; text-align: left; transition: opacity 0.3s; box-shadow: 0 2px 4px rgba(0,0,0,0.03); min-height: 85px; box-sizing: border-box; display: flex; flex-direction: column; justify-content: center; }
         .course-item.required { background-color: #fff5f5 !important; border-left-color: #e53935 !important; border: 1px solid #ffcdd2; border-left-width: 4px; }
         .course-item.required .course-name::after { content: " (必修)"; font-size: 0.85em; color: #c62828; font-weight: normal; }
@@ -77,7 +75,6 @@
         .y3 .badge { background-color: #27ae60; }
         .y4 .badge { background-color: #8e44ad; }
 
-        /* --- Mobile 預設隱藏 --- */
         .mobile-schedule { display: none; }
         .mobile-day-nav { display: none; } 
 
@@ -85,24 +82,21 @@
         .error-msg { color: red; font-weight: bold; }
 
         /* =========================================
-           ★ 手機版 RWD 設定 (小於 1000px)
+           ★ 手機版 RWD 設定
            ========================================= */
         @media screen and (max-width: 1000px) {
             body { padding: 10px; padding-top: 5px; }
             
-            /* 切換顯示模式 */
-            .table-container { display: none !important; } /* 強制隱藏表格 */
-            .mobile-schedule { display: block; }           /* 顯示手機版 */
-            .mobile-day-nav { display: flex; }             /* 顯示週次切換 */
+            .table-container { display: none !important; } 
+            .mobile-schedule { display: block; }           
+            .mobile-day-nav { display: flex; }             
 
-            /* 1. 篩選器容器優化 */
             .filter-container {
                 padding: 10px; margin-bottom: 15px; top: 0;
                 border-radius: 0 0 12px 12px; position: sticky; z-index: 999;
                 box-shadow: 0 4px 15px rgba(0,0,0,0.1);
             }
 
-            /* 2. 週次切換 */
             .mobile-day-nav {
                 overflow-x: auto; white-space: nowrap; padding-bottom: 5px; margin-bottom: 5px;
                 gap: 5px; justify-content: space-between;
@@ -110,7 +104,6 @@
             .mobile-day-nav::-webkit-scrollbar { display: none; }
             .mobile-day-nav .btn { flex: 1; margin: 0; text-align: center; padding: 8px 0; font-size: 13px; }
 
-            /* 3. 展開/收合按鈕 */
             .filter-toggle-btn {
                 display: flex; width: 100%; background: #f8f9fa; border: none; color: #666;
                 padding: 8px; font-size: 12px; border-radius: 6px; cursor: pointer;
@@ -119,7 +112,6 @@
             .filter-toggle-btn::after { content: "▼"; font-size: 10px; }
             .filter-toggle-btn.open::after { content: "▲"; }
 
-            /* 4. 進階篩選區塊 (預設隱藏) */
             .filter-section {
                 display: none; padding-top: 10px; border-top: 1px solid #eee;
                 animation: slideDown 0.3s ease;
@@ -129,18 +121,16 @@
 
             .filter-group { justify-content: flex-start; overflow-x: auto; flex-wrap: nowrap; padding-bottom: 8px; }
             
-            /* 5. 卡片列表樣式 */
             .day-group { margin-bottom: 20px; background: #fff; border-radius: 12px; overflow: hidden; box-shadow: 0 2px 10px rgba(0,0,0,0.05); border: 1px solid #f0f0f0; }
-            .day-group.hidden-day { display: none; } /* 用於週次篩選 */
+            .day-group.hidden-day { display: none; } 
             
-            /* ★ 修正：取消 sticky，改為一般相對定位，解決擋住第2節的問題 */
             .day-header { 
                 background-color: #2c3e50; 
                 color: white; 
                 padding: 10px 15px; 
                 font-size: 1.1em; 
                 font-weight: bold; 
-                position: relative; /* 關鍵修改 */
+                position: relative; /* 取消 sticky 以免擋住 */
             }
             
             .day-body { padding: 0 10px; }
@@ -166,7 +156,7 @@
     <h2 id="pageTitle">資傳系 課程時間表</h2>
 
     <div class="filter-container">
-        <div class="filter-group mobile-day-nav">
+        <div class="filter-group mobile-day-nav" id="dayNavButtons">
             <button class="btn btn-day active" onclick="switchMobileDay('all', this)">全部</button>
             <button class="btn btn-day" onclick="switchMobileDay(1, this)">週一</button>
             <button class="btn btn-day" onclick="switchMobileDay(2, this)">週二</button>
@@ -236,6 +226,7 @@
         let currentClassFilter = 'all';
         let currentTypeFilter = 'all';
         let currentTeacherFilter = 'all';
+        let currentMobileDayFilter = 'all'; // 追蹤目前手機版顯示的星期
 
         // 1. 初始化
         window.onload = function() {
@@ -253,7 +244,7 @@
                     }
 
                     initTeacherFilter(data.courses);
-                    initSchedule(data); // 產生兩種視圖
+                    initSchedule(data); 
                 })
                 .catch(error => {
                     console.error('Error loading data:', error);
@@ -384,7 +375,7 @@
             }
         }
 
-        // 7. 更新篩選條件
+        // 7. 更新篩選條件 (觸發時重置週次為全部)
         function updateFilters(filterCategory, value, element) {
             if (element.tagName === 'BUTTON') {
                 const group = element.parentElement;
@@ -396,13 +387,30 @@
             if (filterCategory === 'type') currentTypeFilter = value;
             if (filterCategory === 'teacher') currentTeacherFilter = value;
 
+            // ★ 新增功能：切換篩選條件時，自動把週次重置為「全部」
+            // 這樣使用者才能看到該老師/班級的一週總覽，而不是停留在沒課的某一天
+            resetMobileDayToAll();
+
             applyCourseVisibility();
         }
 
-        // 8. 執行篩選
+        // 重置週次按鈕 UI 與狀態
+        function resetMobileDayToAll() {
+            currentMobileDayFilter = 'all';
+            const navButtons = document.getElementById('dayNavButtons');
+            if(navButtons) {
+                const buttons = navButtons.querySelectorAll('.btn-day');
+                buttons.forEach(btn => btn.classList.remove('active'));
+                // 第一個按鈕是 '全部'
+                if(buttons.length > 0) buttons[0].classList.add('active');
+            }
+        }
+
+        // 8. 執行篩選 (核心邏輯：過濾課程 -> 隱藏空的日子)
         function applyCourseVisibility() {
             const courses = document.querySelectorAll('.course-item');
             
+            // Step 1: 顯示/隱藏個別課程
             courses.forEach(course => {
                 const year = course.getAttribute('data-y');
                 const cls = course.getAttribute('data-c'); 
@@ -435,6 +443,47 @@
                     course.classList.add('hidden');
                 }
             });
+
+            // Step 2: 檢查手機版每一天是否還有可見課程
+            updateMobileDayVisibility();
+        }
+
+        // 輔助函式：隱藏沒有課程的天 (僅影響手機版)
+        function updateMobileDayVisibility() {
+            const dayGroups = document.querySelectorAll('.day-group');
+            
+            dayGroups.forEach(group => {
+                const groupDayIndex = parseInt(group.getAttribute('data-day-index'));
+                
+                // 檢查這一天裡面有沒有任何 "沒有 hidden class" 的 course-item
+                // 這裡只檢查 mobile-content-col 裡面的 course-item，避免抓到隱藏的
+                const visibleCourses = group.querySelectorAll('.course-item:not(.hidden)');
+                const hasVisibleCourse = visibleCourses.length > 0;
+
+                // 決定是否顯示這一天
+                // 條件 A: 使用者選了「全部」週次 或 選了這一天
+                // 條件 B: 這一天必須有課 (針對篩選結果)
+                
+                let shouldShowDay = false;
+
+                if (currentMobileDayFilter === 'all') {
+                    // 如果選全部，只顯示有課的日子
+                    shouldShowDay = hasVisibleCourse;
+                } else {
+                    // 如果選特定日子，只顯示那一天 (即使沒課也顯示，或者你要隱藏也可以，這裡保留顯示以免困惑)
+                    if (groupDayIndex == currentMobileDayFilter) {
+                        shouldShowDay = true; 
+                    }
+                }
+
+                if (shouldShowDay) {
+                    group.classList.remove('hidden-day');
+                    group.style.display = 'block'; // 強制顯示
+                } else {
+                    group.classList.add('hidden-day');
+                    group.style.display = 'none'; // 強制隱藏
+                }
+            });
         }
 
         // 9. 切換手機版週次
@@ -443,16 +492,12 @@
             buttons.forEach(b => b.classList.remove('active'));
             btn.classList.add('active');
 
-            const dayGroups = document.querySelectorAll('.day-group');
-            dayGroups.forEach((group) => {
-                const groupDayIndex = parseInt(group.getAttribute('data-day-index'));
-                if (dayIndex === 'all') {
-                    group.classList.remove('hidden-day');
-                } else {
-                    if (groupDayIndex == dayIndex) group.classList.remove('hidden-day');
-                    else group.classList.add('hidden-day');
-                }
-            });
+            currentMobileDayFilter = dayIndex; // 更新全域狀態
+            
+            // 重新執行一次可見度檢查
+            // 這裡不需要重新跑 applyCourseVisibility (因為課程本身的篩選沒變)
+            // 只需要跑 updateMobileDayVisibility 即可
+            updateMobileDayVisibility();
         }
     </script>
 </body>
