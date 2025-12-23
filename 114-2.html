@@ -5,312 +5,77 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>資傳系課程時間表</title>
     <style>
-        body {
-            font-family: "Microsoft JhengHei", "Helvetica Neue", Helvetica, Arial, sans-serif;
-            background-color: #f4f6f8;
-            margin: 0;
-            padding: 20px;
-        }
-
-        h2 {
-            text-align: center;
-            color: #333;
-            margin-bottom: 15px;
-        }
-
-        .filter-container {
-            text-align: center;
-            margin-bottom: 20px;
-            background: #fff;
-            padding: 15px;
-            border-radius: 8px;
-            box-shadow: 0 2px 5px rgba(0,0,0,0.05);
-            position: sticky;
-            top: 0;
-            z-index: 100;
-        }
-
-        .filter-group {
-            margin: 8px 0;
-            padding-bottom: 8px;
-            border-bottom: 1px dashed #eee;
-        }
+        body { font-family: "Microsoft JhengHei", Helvetica, Arial, sans-serif; background-color: #f4f6f8; margin: 0; padding: 20px; }
+        h2 { text-align: center; color: #333; margin-bottom: 15px; }
         
-        .filter-group:last-child {
-            border-bottom: none;
-            padding-bottom: 0;
-        }
+        /* 篩選器樣式 */
+        .filter-container { text-align: center; margin-bottom: 20px; background: #fff; padding: 15px; border-radius: 8px; box-shadow: 0 2px 5px rgba(0,0,0,0.05); position: sticky; top: 0; z-index: 100; }
+        .filter-group { margin: 8px 0; padding-bottom: 8px; border-bottom: 1px dashed #eee; }
+        .filter-group:last-child { border-bottom: none; padding-bottom: 0; }
+        .filter-label { font-size: 14px; color: #666; margin-right: 10px; font-weight: bold; }
+        .btn { background-color: #fff; border: 1px solid #ddd; color: #555; padding: 6px 14px; margin: 3px; border-radius: 20px; cursor: pointer; font-size: 14px; transition: all 0.2s; }
+        .btn:hover { background-color: #f0f0f0; border-color: #bbb; }
+        .btn.active { background-color: #2c3e50; color: #fff; border-color: #2c3e50; box-shadow: 0 2px 4px rgba(44, 62, 80, 0.3); }
+        .btn-day.active { background-color: #e67e22; border-color: #e67e22; }
+        .mobile-day-nav { display: none; }
 
-        .filter-label {
-            font-size: 14px;
-            color: #666;
-            margin-right: 10px;
-            font-weight: bold;
-        }
+        /* 圖例與表格樣式 */
+        .legend { text-align: right; margin-bottom: 10px; font-size: 13px; }
+        .legend span { display: inline-block; margin-left: 15px; padding: 2px 8px; border-radius: 4px; }
+        .legend-req { background-color: #ffebee; border-left: 4px solid #d32f2f; color: #c62828; }
+        .legend-ele { background-color: #fafafa; border-left: 4px solid #ccc; color: #555; }
 
-        .btn {
-            background-color: #fff;
-            border: 1px solid #ddd;
-            color: #555;
-            padding: 6px 14px;
-            margin: 3px;
-            border-radius: 20px;
-            cursor: pointer;
-            font-size: 14px;
-            transition: all 0.2s;
-        }
+        .table-container { background-color: #fff; border-radius: 8px; box-shadow: 0 0 15px rgba(0, 0, 0, 0.1); overflow-x: auto; min-height: 200px; }
+        table { width: 100%; border-collapse: collapse; min-width: 1000px; table-layout: fixed; }
+        th, td { border: 1px solid #e0e0e0; padding: 10px 5px; text-align: center; vertical-align: top; word-wrap: break-word; }
+        th:nth-child(1) { width: 5%; } th:nth-child(2) { width: 10%; }
+        th:nth-child(3), th:nth-child(4), th:nth-child(5), th:nth-child(6), th:nth-child(7) { width: 17%; }
+        thead th { background-color: #2c3e50; color: #fff; padding: 12px 5px; }
+        td.period { font-weight: bold; background-color: #ecf0f1; color: #2c3e50; vertical-align: middle; }
+        td.time { font-size: 12px; color: #7f8c8d; background-color: #f9f9f9; vertical-align: middle; }
+        tr.lunch td { background-color: #fffcf5; color: #d35400; }
 
-        .btn:hover {
-            background-color: #f0f0f0;
-            border-color: #bbb;
-        }
-
-        .btn.active {
-            background-color: #2c3e50;
-            color: #fff;
-            border-color: #2c3e50;
-            box-shadow: 0 2px 4px rgba(44, 62, 80, 0.3);
-        }
-
-        .btn-day.active {
-            background-color: #e67e22;
-            border-color: #e67e22;
-        }
-
-        .mobile-day-nav {
-            display: none; 
-        }
-
-        .legend {
-            text-align: right;
-            margin-bottom: 10px;
-            font-size: 13px;
-        }
-
-        .legend span {
-            display: inline-block;
-            margin-left: 15px;
-            padding: 2px 8px;
-            border-radius: 4px;
-        }
-
-        .legend-req {
-            background-color: #ffebee;
-            border-left: 4px solid #d32f2f;
-            color: #c62828;
-        }
-
-        .legend-ele {
-            background-color: #fafafa;
-            border-left: 4px solid #ccc;
-            color: #555;
-        }
-
-        .course-item {
-            margin-bottom: 8px;
-            padding: 8px;
-            border-radius: 6px;
-            border-left: 5px solid #ccc;
-            background-color: #fafafa;
-            text-align: left;
-            transition: opacity 0.3s;
-            box-shadow: 0 1px 2px rgba(0,0,0,0.05);
-        }
-
-        .course-item.required {
-            background-color: #ffebee !important;
-            border-left-color: #d32f2f !important;
-            border: 1px solid #ffcdd2;
-            border-left-width: 5px;
-        }
-
-        .course-item.required .course-name::after {
-            content: " (必修)";
-            font-size: 0.85em;
-            color: #c62828;
-            font-weight: normal;
-        }
-
-        .course-item.hidden {
-            display: none !important;
-        }
-
-        .course-name {
-            display: block;
-            font-weight: 700;
-            color: #34495e;
-            font-size: 13px;
-            line-height: 1.4;
-        }
-
-        .classroom {
-            display: block;
-            font-size: 12px;
-            color: #7f8c8d;
-            margin-top: 4px;
-        }
-
-        .badge {
-            display: inline-block;
-            font-size: 11px;
-            padding: 2px 6px;
-            border-radius: 4px;
-            color: white;
-            margin-bottom: 4px;
-            background-color: #95a5a6;
-        }
-
+        /* 課程卡片樣式 */
+        .course-item { margin-bottom: 8px; padding: 8px; border-radius: 6px; border-left: 5px solid #ccc; background-color: #fafafa; text-align: left; transition: opacity 0.3s; box-shadow: 0 1px 2px rgba(0,0,0,0.05); }
+        .course-item.required { background-color: #ffebee !important; border-left-color: #d32f2f !important; border: 1px solid #ffcdd2; border-left-width: 5px; }
+        .course-item.required .course-name::after { content: " (必修)"; font-size: 0.85em; color: #c62828; font-weight: normal; }
+        .course-item.hidden { display: none !important; }
+        .course-name { display: block; font-weight: 700; color: #34495e; font-size: 13px; line-height: 1.4; }
+        .teacher { display: block; font-size: 12px; color: #555; margin-top: 2px; font-weight: bold; }
+        .classroom { display: block; font-size: 12px; color: #7f8c8d; margin-top: 2px; }
+        .badge { display: inline-block; font-size: 11px; padding: 2px 6px; border-radius: 4px; color: white; margin-bottom: 4px; background-color: #95a5a6; }
         .y1 .badge { background-color: #e67e22; }
         .y2 .badge { background-color: #2980b9; }
         .y3 .badge { background-color: #27ae60; }
         .y4 .badge { background-color: #8e44ad; }
 
-        .table-container {
-            background-color: #fff;
-            border-radius: 8px;
-            box-shadow: 0 0 15px rgba(0, 0, 0, 0.1);
-            overflow-x: auto;
-        }
-
-        table {
-            width: 100%;
-            border-collapse: collapse;
-            min-width: 1000px;
-            table-layout: fixed;
-        }
-
-        th, td {
-            border: 1px solid #e0e0e0;
-            padding: 10px 5px;
-            text-align: center;
-            vertical-align: top;
-            word-wrap: break-word;
-        }
-
-        th:nth-child(1) { width: 5%; }
-        th:nth-child(2) { width: 10%; }
-        th:nth-child(3), th:nth-child(4), th:nth-child(5), th:nth-child(6), th:nth-child(7) { width: 17%; }
-
-        thead th {
-            background-color: #2c3e50;
-            color: #fff;
-            padding: 12px 5px;
-        }
-
-        td.period {
-            font-weight: bold;
-            background-color: #ecf0f1;
-            color: #2c3e50;
-            vertical-align: middle;
-        }
-
-        td.time {
-            font-size: 12px;
-            color: #7f8c8d;
-            background-color: #f9f9f9;
-            vertical-align: middle;
-        }
-
-        tr.lunch td {
-            background-color: #fffcf5;
-            color: #d35400;
-        }
-
-        .mobile-schedule {
-            display: none;
-        }
-
+        /* 手機版 RWD */
+        .mobile-schedule { display: none; }
         @media screen and (max-width: 1000px) {
-            .table-container {
-                display: none;
-            }
-            
-            .mobile-schedule {
-                display: block;
-            }
-
-            .mobile-day-nav {
-                display: block;
-            }
-
-            .day-group {
-                margin-bottom: 25px;
-                background: #fff;
-                border-radius: 8px;
-                overflow: hidden;
-                box-shadow: 0 2px 8px rgba(0,0,0,0.1);
-                border: 1px solid #e0e0e0;
-            }
-
-            .day-group.hidden-day {
-                display: none;
-            }
-
-            .day-header {
-                background-color: #2c3e50;
-                color: white;
-                padding: 12px 15px;
-                font-size: 1.2em;
-                font-weight: bold;
-            }
-
-            .day-body {
-                padding: 0 10px;
-            }
-
-            .mobile-row {
-                display: flex;
-                border-bottom: 1px solid #eee;
-                padding: 12px 0;
-            }
-
-            .mobile-row:last-child {
-                border-bottom: none;
-            }
-
-            .mobile-time-col {
-                width: 70px;
-                flex-shrink: 0;
-                text-align: center;
-                border-right: 2px solid #f0f0f0;
-                padding-right: 10px;
-                margin-right: 10px;
-                display: flex;
-                flex-direction: column;
-                justify-content: center;
-            }
-
-            .m-period {
-                font-size: 1.2em;
-                font-weight: bold;
-                color: #2c3e50;
-                display: block;
-            }
-
-            .m-time {
-                font-size: 0.8em;
-                color: #999;
-                display: block;
-                margin-top: 4px;
-                line-height: 1.2;
-            }
-
-            .mobile-content-col {
-                flex-grow: 1;
-            }
-
-            .empty-slot {
-                color: #ddd;
-                font-size: 0.9em;
-                padding-top: 5px;
-                font-style: italic;
-            }
+            .table-container { display: none; }
+            .mobile-schedule { display: block; }
+            .mobile-day-nav { display: block; }
+            .day-group { margin-bottom: 25px; background: #fff; border-radius: 8px; overflow: hidden; box-shadow: 0 2px 8px rgba(0,0,0,0.1); border: 1px solid #e0e0e0; }
+            .day-group.hidden-day { display: none; }
+            .day-header { background-color: #2c3e50; color: white; padding: 12px 15px; font-size: 1.2em; font-weight: bold; }
+            .day-body { padding: 0 10px; }
+            .mobile-row { display: flex; border-bottom: 1px solid #eee; padding: 12px 0; }
+            .mobile-row:last-child { border-bottom: none; }
+            .mobile-time-col { width: 70px; flex-shrink: 0; text-align: center; border-right: 2px solid #f0f0f0; padding-right: 10px; margin-right: 10px; display: flex; flex-direction: column; justify-content: center; }
+            .m-period { font-size: 1.2em; font-weight: bold; color: #2c3e50; display: block; }
+            .m-time { font-size: 0.8em; color: #999; display: block; margin-top: 4px; line-height: 1.2; }
+            .mobile-content-col { flex-grow: 1; }
+            .empty-slot { color: #ddd; font-size: 0.9em; padding-top: 5px; font-style: italic; }
         }
+        
+        /* 載入中/錯誤提示 */
+        #loading-msg { text-align: center; padding: 20px; color: #666; font-size: 1.2em; }
+        .error-msg { color: red; font-weight: bold; }
     </style>
 </head>
 <body>
 
-    <h2>資傳系 課程時間表</h2>
+    <h2 id="pageTitle">資傳系 課程時間表</h2>
 
     <div class="filter-container">
         <div class="filter-group" id="class-filters">
@@ -335,11 +100,11 @@
         <div class="filter-group mobile-day-nav">
             <span class="filter-label">週次:</span>
             <button class="btn btn-day active" onclick="switchMobileDay('all', this)">全部</button>
-            <button class="btn btn-day" onclick="switchMobileDay(0, this)">週一</button>
-            <button class="btn btn-day" onclick="switchMobileDay(1, this)">週二</button>
-            <button class="btn btn-day" onclick="switchMobileDay(2, this)">週三</button>
-            <button class="btn btn-day" onclick="switchMobileDay(3, this)">週四</button>
-            <button class="btn btn-day" onclick="switchMobileDay(4, this)">週五</button>
+            <button class="btn btn-day" onclick="switchMobileDay(1, this)">週一</button>
+            <button class="btn btn-day" onclick="switchMobileDay(2, this)">週二</button>
+            <button class="btn btn-day" onclick="switchMobileDay(3, this)">週三</button>
+            <button class="btn btn-day" onclick="switchMobileDay(4, this)">週四</button>
+            <button class="btn btn-day" onclick="switchMobileDay(5, this)">週五</button>
         </div>
     </div>
 
@@ -348,7 +113,9 @@
         <span class="legend-ele">選修課程</span>
     </div>
 
-    <div class="table-container">
+    <div id="loading-msg">資料載入中...</div>
+
+    <div class="table-container" style="display:none;">
         <table id="scheduleTable">
             <thead>
                 <tr>
@@ -361,517 +128,114 @@
                     <th>五 (Fri)</th>
                 </tr>
             </thead>
-            <tbody>
-                <tr>
-                    <td class="period">1</td>
-                    <td class="time">08:10<br>~<br>09:00</td>
-                    <td></td>
-                    <td></td>
-                    <td></td>
-                    <td>
-                        <div class="course-item y3 class-b required" data-y="3" data-c="b">
-                            <span class="badge">三乙</span> <span class="course-name">資料庫系統開發實務</span>
-                            <span class="classroom">M303</span>
-                        </div>
-                    </td>
-                    <td></td>
-                </tr>
-                <tr>
-                    <td class="period">2</td>
-                    <td class="time">09:10<br>~<br>10:00</td>
-                    <td></td>
-                    <td></td>
-                    <td>
-                        <div class="course-item y3 class-common" data-y="3" data-c="common">
-                            <span class="badge">大三</span> <span class="course-name">資訊圖表設計</span>
-                            <span class="classroom">G302</span>
-                        </div>
-                    </td>
-                    <td>
-                        <div class="course-item y3 class-b required" data-y="3" data-c="b">
-                            <span class="badge">三乙</span> <span class="course-name">資料庫系統開發實務</span>
-                            <span class="classroom">M303</span>
-                        </div>
-                        <div class="course-item y2 class-common" data-y="2" data-c="common">
-                            <span class="badge">大二</span> <span class="course-name">網站規劃與設計</span>
-                            <span class="classroom">R502</span>
-                        </div>
-                    </td>
-                    <td>
-                        <div class="course-item y3 class-common" data-y="3" data-c="common">
-                            <span class="badge">大三</span> <span class="course-name">生成式AI與商模創新</span>
-                            <span class="classroom">R601</span>
-                        </div>
-                    </td>
-                </tr>
-                <tr>
-                    <td class="period">3</td>
-                    <td class="time">10:10<br>~<br>11:00</td>
-                    <td>
-                        <div class="course-item y2 class-a required" data-y="2" data-c="a">
-                            <span class="badge">二甲</span> <span class="course-name">資訊傳播專題(一)</span>
-                            <span class="classroom">CB205</span>
-                        </div>
-                        <div class="course-item y3 class-b required" data-y="3" data-c="b">
-                            <span class="badge">三乙</span> <span class="course-name">數據資料分析</span>
-                            <span class="classroom">W401</span>
-                        </div>
-                    </td>
-                    <td>
-                        <div class="course-item y3 class-a required" data-y="3" data-c="a">
-                            <span class="badge">三甲</span> <span class="course-name">數據資料分析</span>
-                            <span class="classroom">S303</span>
-                        </div>
-                        <div class="course-item y2 class-common" data-y="2" data-c="common">
-                            <span class="badge">大二</span> <span class="course-name">人工智慧與傳播應用</span>
-                            <span class="classroom">W401</span>
-                        </div>
-                    </td>
-                    <td>
-                        <div class="course-item y1 class-common" data-y="1" data-c="common">
-                            <span class="badge">大一</span> <span class="course-name">網路直播經營</span>
-                            <span class="classroom">G502</span>
-                        </div>
-                        <div class="course-item y2 class-b required" data-y="2" data-c="b">
-                            <span class="badge">二乙</span> <span class="course-name">質性資料分析</span>
-                            <span class="classroom">J306</span>
-                        </div>
-                        <div class="course-item y3 class-common" data-y="3" data-c="common">
-                            <span class="badge">大三</span> <span class="course-name">資訊圖表設計</span>
-                            <span class="classroom">G302</span>
-                        </div>
-                    </td>
-                    <td>
-                        <div class="course-item y1 class-a required" data-y="1" data-c="a">
-                            <span class="badge">一甲</span> <span class="course-name">數位內容策展</span>
-                            <span class="classroom">R901</span>
-                        </div>
-                        <div class="course-item y2 class-common" data-y="2" data-c="common">
-                            <span class="badge">大二</span> <span class="course-name">網站規劃與設計</span>
-                            <span class="classroom">R502</span>
-                        </div>
-                        <div class="course-item y3 class-a required" data-y="3" data-c="a">
-                            <span class="badge">三甲</span> <span class="course-name">資料庫系統開發實務</span>
-                            <span class="classroom">M306</span>
-                        </div>
-                    </td>
-                    <td>
-                        <div class="course-item y2 class-common required" data-y="2" data-c="common">
-                            <span class="badge">大二</span> <span class="course-name">互動程式設計(尾數1-3)</span>
-                            <span class="classroom">L406</span>
-                        </div>
-                        <div class="course-item y2 class-common required" data-y="2" data-c="common">
-                            <span class="badge">大二</span> <span class="course-name">互動程式設計(尾數4-6)</span>
-                            <span class="classroom">W401</span>
-                        </div>
-                        <div class="course-item y3 class-common" data-y="3" data-c="common">
-                            <span class="badge">大三</span> <span class="course-name">生成式AI與商模創新</span>
-                            <span class="classroom">R601</span>
-                        </div>
-                        <div class="course-item y4 class-common" data-y="4" data-c="common">
-                            <span class="badge">四甲</span> <span class="course-name">資訊傳播英文實務</span>
-                            <span class="classroom">G302</span>
-                        </div>
-                    </td>
-                </tr>
-                <tr>
-                    <td class="period">4</td>
-                    <td class="time">11:10<br>~<br>12:00</td>
-                    <td>
-                        <div class="course-item y2 class-a required" data-y="2" data-c="a">
-                            <span class="badge">二甲</span> <span class="course-name">資訊傳播專題(一)</span>
-                            <span class="classroom">CB205</span>
-                        </div>
-                        <div class="course-item y3 class-b required" data-y="3" data-c="b">
-                            <span class="badge">三乙</span> <span class="course-name">數據資料分析</span>
-                            <span class="classroom">W401</span>
-                        </div>
-                    </td>
-                    <td>
-                        <div class="course-item y3 class-a required" data-y="3" data-c="a">
-                            <span class="badge">三甲</span> <span class="course-name">數據資料分析</span>
-                            <span class="classroom">S303</span>
-                        </div>
-                        <div class="course-item y2 class-common" data-y="2" data-c="common">
-                            <span class="badge">大二</span> <span class="course-name">人工智慧與傳播應用</span>
-                            <span class="classroom">W401</span>
-                        </div>
-                    </td>
-                    <td>
-                        <div class="course-item y1 class-common" data-y="1" data-c="common">
-                            <span class="badge">大一</span> <span class="course-name">網路直播經營</span>
-                            <span class="classroom">G502</span>
-                        </div>
-                        <div class="course-item y2 class-b required" data-y="2" data-c="b">
-                            <span class="badge">二乙</span> <span class="course-name">質性資料分析</span>
-                            <span class="classroom">J306</span>
-                        </div>
-                        <div class="course-item y3 class-common" data-y="3" data-c="common">
-                            <span class="badge">大三</span> <span class="course-name">資訊圖表設計</span>
-                            <span class="classroom">G302</span>
-                        </div>
-                    </td>
-                    <td>
-                        <div class="course-item y1 class-a required" data-y="1" data-c="a">
-                            <span class="badge">一甲</span> <span class="course-name">數位內容策展</span>
-                            <span class="classroom">R901</span>
-                        </div>
-                        <div class="course-item y2 class-common" data-y="2" data-c="common">
-                            <span class="badge">大二</span> <span class="course-name">網站規劃與設計</span>
-                            <span class="classroom">R502</span>
-                        </div>
-                        <div class="course-item y3 class-a required" data-y="3" data-c="a">
-                            <span class="badge">三甲</span> <span class="course-name">資料庫系統開發實務</span>
-                            <span class="classroom">M306</span>
-                        </div>
-                    </td>
-                    <td>
-                        <div class="course-item y2 class-common required" data-y="2" data-c="common">
-                            <span class="badge">大二</span> <span class="course-name">互動程式設計(尾數1-3)</span>
-                            <span class="classroom">L406</span>
-                        </div>
-                        <div class="course-item y2 class-common required" data-y="2" data-c="common">
-                            <span class="badge">大二</span> <span class="course-name">互動程式設計(尾數4-6)</span>
-                            <span class="classroom">W401</span>
-                        </div>
-                        <div class="course-item y3 class-common" data-y="3" data-c="common">
-                            <span class="badge">大三</span> <span class="course-name">生成式AI與商模創新</span>
-                            <span class="classroom">R601</span>
-                        </div>
-                        <div class="course-item y4 class-common" data-y="4" data-c="common">
-                            <span class="badge">四甲</span> <span class="course-name">資訊傳播英文實務</span>
-                            <span class="classroom">G302</span>
-                        </div>
-                    </td>
-                </tr>
-                <tr class="lunch">
-                    <td class="period">5</td>
-                    <td class="time">12:10<br>~<br>13:00</td>
-                    <td></td>
-                    <td>
-                        <div class="course-item y2 class-common" data-y="2" data-c="common">
-                            <span class="badge">大二</span> <span class="course-name">人工智慧與傳播應用</span>
-                            <span class="classroom">W401</span>
-                        </div>
-                    </td>
-                    <td></td>
-                    <td>
-                        <div class="course-item y3 class-a required" data-y="3" data-c="a">
-                            <span class="badge">三甲</span> <span class="course-name">資料庫系統開發實務</span>
-                            <span class="classroom">M306</span>
-                        </div>
-                    </td>
-                    <td></td>
-                </tr>
-                <tr>
-                    <td class="period">6</td>
-                    <td class="time">13:10<br>~<br>14:00</td>
-                    <td>
-                        <div class="course-item y2 class-a required" data-y="2" data-c="a">
-                            <span class="badge">二甲</span> <span class="course-name">質性資料分析</span>
-                            <span class="classroom">R501</span>
-                        </div>
-                        <div class="course-item y3 class-a required" data-y="3" data-c="a">
-                            <span class="badge">三甲</span> <span class="course-name">資訊傳播專題(三)</span>
-                            <span class="classroom">R704</span>
-                        </div>
-                        <div class="course-item y3 class-b required" data-y="3" data-c="b">
-                            <span class="badge">三乙</span> <span class="course-name">資訊傳播專題(三)</span>
-                            <span class="classroom">CB201</span>
-                        </div>
-                    </td>
-                    <td>
-                        <div class="course-item y1 class-a required" data-y="1" data-c="a">
-                            <span class="badge">一甲</span> <span class="course-name">網頁設計</span>
-                            <span class="classroom">M308</span>
-                        </div>
-                        <div class="course-item y1 class-b required" data-y="1" data-c="b">
-                            <span class="badge">一乙</span> <span class="course-name">數位內容策展</span>
-                            <span class="classroom">R901</span>
-                        </div>
-                        <div class="course-item y4 class-common required" data-y="4" data-c="common">
-                            <span class="badge">四甲</span> <span class="course-name">網路傳播與生成式AI</span>
-                            <span class="classroom">R203</span>
-                        </div>
-                    </td>
-                    <td></td>
-                    <td>
-                        <div class="course-item y1 class-b required" data-y="1" data-c="b">
-                            <span class="badge">一乙</span> <span class="course-name">網頁設計</span>
-                            <span class="classroom">L502</span>
-                        </div>
-                        <div class="course-item y2 class-b required" data-y="2" data-c="b">
-                            <span class="badge">二乙</span> <span class="course-name">資訊傳播專題(一)</span>
-                            <span class="classroom">J101</span>
-                        </div>
-                        <div class="course-item y4 class-common" data-y="4" data-c="common">
-                            <span class="badge">四甲</span> <span class="course-name">數位內容與創新管理</span>
-                            <span class="classroom">C101</span>
-                        </div>
-                    </td>
-                    <td>
-                        <div class="course-item y2 class-common" data-y="2" data-c="common">
-                            <span class="badge">大二</span> <span class="course-name">雲端平台與應用服務</span>
-                            <span class="classroom">W401</span>
-                        </div>
-                    </td>
-                </tr>
-                <tr>
-                    <td class="period">7</td>
-                    <td class="time">14:10<br>~<br>15:00</td>
-                    <td>
-                        <div class="course-item y2 class-a required" data-y="2" data-c="a">
-                            <span class="badge">二甲</span> <span class="course-name">質性資料分析</span>
-                            <span class="classroom">R501</span>
-                        </div>
-                        <div class="course-item y3 class-a required" data-y="3" data-c="a">
-                            <span class="badge">三甲</span> <span class="course-name">資訊傳播專題(三)</span>
-                            <span class="classroom">R704</span>
-                        </div>
-                        <div class="course-item y3 class-b required" data-y="3" data-c="b">
-                            <span class="badge">三乙</span> <span class="course-name">資訊傳播專題(三)</span>
-                            <span class="classroom">CB201</span>
-                        </div>
-                    </td>
-                    <td>
-                        <div class="course-item y1 class-a required" data-y="1" data-c="a">
-                            <span class="badge">一甲</span> <span class="course-name">網頁設計</span>
-                            <span class="classroom">M308</span>
-                        </div>
-                        <div class="course-item y1 class-b required" data-y="1" data-c="b">
-                            <span class="badge">一乙</span> <span class="course-name">數位內容策展</span>
-                            <span class="classroom">R901</span>
-                        </div>
-                        <div class="course-item y4 class-common required" data-y="4" data-c="common">
-                            <span class="badge">四甲</span> <span class="course-name">網路傳播與生成式AI</span>
-                            <span class="classroom">R203</span>
-                        </div>
-                    </td>
-                    <td></td>
-                    <td>
-                        <div class="course-item y1 class-b required" data-y="1" data-c="b">
-                            <span class="badge">一乙</span> <span class="course-name">網頁設計</span>
-                            <span class="classroom">L502</span>
-                        </div>
-                        <div class="course-item y2 class-b required" data-y="2" data-c="b">
-                            <span class="badge">二乙</span> <span class="course-name">資訊傳播專題(一)</span>
-                            <span class="classroom">J101</span>
-                        </div>
-                        <div class="course-item y4 class-common" data-y="4" data-c="common">
-                            <span class="badge">四甲</span> <span class="course-name">數位內容與創新管理</span>
-                            <span class="classroom">C101</span>
-                        </div>
-                    </td>
-                    <td>
-                        <div class="course-item y2 class-common" data-y="2" data-c="common">
-                            <span class="badge">大二</span> <span class="course-name">雲端平台與應用服務</span>
-                            <span class="classroom">W401</span>
-                        </div>
-                    </td>
-                </tr>
-                <tr>
-                    <td class="period">8</td>
-                    <td class="time">15:10<br>~<br>16:00</td>
-                    <td>
-                        <div class="course-item y1 class-a required" data-y="1" data-c="a">
-                            <span class="badge">一甲</span> <span class="course-name">網頁設計</span>
-                            <span class="classroom">M308</span>
-                        </div>
-                        <div class="course-item y2 class-common" data-y="2" data-c="common">
-                            <span class="badge">大二</span> <span class="course-name">英語直播:口語表達</span>
-                            <span class="classroom">C101</span>
-                        </div>
-                    </td>
-                    <td>
-                        <div class="course-item y2 class-common" data-y="2" data-c="common">
-                            <span class="badge">大二</span> <span class="course-name">系統分析</span>
-                            <span class="classroom">G502</span>
-                        </div>
-                        <div class="course-item y3 class-common" data-y="3" data-c="common">
-                            <span class="badge">大三</span> <span class="course-name">知識管理與商業智慧</span>
-                            <span class="classroom">R102</span>
-                        </div>
-                    </td>
-                    <td>
-                        <div class="course-item y1 class-b required" data-y="1" data-c="b">
-                            <span class="badge">一乙</span> <span class="course-name">網頁設計</span>
-                            <span class="classroom">L502</span>
-                        </div>
-                        <div class="course-item y2 class-common" data-y="2" data-c="common">
-                            <span class="badge">大二</span> <span class="course-name">資訊心理學</span>
-                            <span class="classroom">R602</span>
-                        </div>
-                        <div class="course-item y4 class-common" data-y="4" data-c="common">
-                            <span class="badge">四甲</span> <span class="course-name">數位內容與創新管理</span>
-                            <span class="classroom">C101</span>
-                        </div>
-                    </td>
-                    <td>
-                        <div class="course-item y2 class-common required" data-y="2" data-c="common">
-                            <span class="badge">大二</span> <span class="course-name">互動程式設計(尾數7-0)</span>
-                            <span class="classroom">L406</span>
-                        </div>
-                    </td>
-                </tr>
-                <tr>
-                    <td class="period">9</td>
-                    <td class="time">16:10<br>~<br>17:00</td>
-                    <td>
-                        <div class="course-item y2 class-common" data-y="2" data-c="common">
-                            <span class="badge">大二</span> <span class="course-name">英語直播:口語表達</span>
-                            <span class="classroom">C101</span>
-                        </div>
-                    </td>
-                    <td>
-                        <div class="course-item y2 class-common" data-y="2" data-c="common">
-                            <span class="badge">大二</span> <span class="course-name">系統分析</span>
-                            <span class="classroom">G502</span>
-                        </div>
-                        <div class="course-item y3 class-common" data-y="3" data-c="common">
-                            <span class="badge">大三</span> <span class="course-name">知識管理與商業智慧</span>
-                            <span class="classroom">R102</span>
-                        </div>
-                    </td>
-                    <td>
-                        <div class="course-item y2 class-common" data-y="2" data-c="common">
-                            <span class="badge">大二</span> <span class="course-name">資訊心理學</span>
-                            <span class="classroom">R602</span>
-                        </div>
-                        <div class="course-item y4 class-common" data-y="4" data-c="common">
-                            <span class="badge">四甲</span> <span class="course-name">資傳人才新創育成</span>
-                            <span class="classroom">G301</span>
-                        </div>
-                    </td>
-                    <td>
-                        <div class="course-item y2 class-common required" data-y="2" data-c="common">
-                            <span class="badge">大二</span> <span class="course-name">互動程式設計(尾數7-0)</span>
-                            <span class="classroom">L406</span>
-                        </div>
-                    </td>
-                </tr>
-                <tr>
-                    <td class="period">10</td>
-                    <td class="time">17:10<br>~<br>18:00</td>
-                    <td></td>
-                    <td></td>
-                    <td>
-                        <div class="course-item y2 class-common" data-y="2" data-c="common">
-                            <span class="badge">大二</span> <span class="course-name">系統分析</span>
-                            <span class="classroom">G502</span>
-                        </div>
-                        <div class="course-item y3 class-common" data-y="3" data-c="common">
-                            <span class="badge">大三</span> <span class="course-name">知識管理與商業智慧</span>
-                            <span class="classroom">R102</span>
-                        </div>
-                    </td>
-                    <td>
-                        <div class="course-item y4 class-common" data-y="4" data-c="common">
-                            <span class="badge">四甲</span> <span class="course-name">資傳人才新創育成</span>
-                            <span class="classroom">G301</span>
-                        </div>
-                    </td>
-                    <td></td>
-                </tr>
-                <tr>
-                    <td class="period">12-14</td>
-                    <td class="time">19:10<br>~<br>22:00</td>
-                    <td></td>
-                    <td></td>
-                    <td></td>
-                    <td>
-                        <div class="course-item y3 class-common" data-y="3" data-c="common">
-                            <span class="badge">大三</span> <span class="course-name">數位產品技術加值</span>
-                            <span class="classroom">G701</span>
-                        </div>
-                    </td>
-                    <td></td>
-                </tr>
-            </tbody>
+            <tbody id="tableBody"></tbody>
         </table>
     </div>
 
     <div id="mobile-schedule" class="mobile-schedule"></div>
 
     <script>
+        // 篩選狀態變數
         let currentClassFilter = 'all';
         let currentTypeFilter = 'all';
 
-        function updateFilters(filterCategory, value, btn) {
-            const group = btn.parentElement;
-            group.querySelectorAll('.btn').forEach(b => b.classList.remove('active'));
-            btn.classList.add('active');
-
-            if (filterCategory === 'class') {
-                currentClassFilter = value;
-            } else if (filterCategory === 'type') {
-                currentTypeFilter = value;
-            }
-
-            applyCourseVisibility();
-        }
-
-        function applyCourseVisibility() {
-            const courses = document.querySelectorAll('.course-item');
-            
-            courses.forEach(course => {
-                const year = course.getAttribute('data-y');
-                const cls = course.getAttribute('data-c'); 
-                const isRequired = course.classList.contains('required');
-                
-                let classMatch = false;
-                let typeMatch = false;
-
-                if (currentClassFilter === 'all') classMatch = true;
-                else if (currentClassFilter === '4all' && year === '4') classMatch = true;
-                else if (currentClassFilter === '3a' && year === '3' && (cls === 'a' || cls === 'common')) classMatch = true;
-                else if (currentClassFilter === '3b' && year === '3' && (cls === 'b' || cls === 'common')) classMatch = true;
-                else if (currentClassFilter === '2a' && year === '2' && (cls === 'a' || cls === 'common')) classMatch = true;
-                else if (currentClassFilter === '2b' && year === '2' && (cls === 'b' || cls === 'common')) classMatch = true;
-                else if (currentClassFilter === '1a' && year === '1' && (cls === 'a' || cls === 'common')) classMatch = true;
-                else if (currentClassFilter === '1b' && year === '1' && (cls === 'b' || cls === 'common')) classMatch = true;
-
-                if (currentTypeFilter === 'all') typeMatch = true;
-                else if (currentTypeFilter === 'required' && isRequired) typeMatch = true;
-                else if (currentTypeFilter === 'elective' && !isRequired) typeMatch = true;
-
-                if (classMatch && typeMatch) {
-                    course.classList.remove('hidden');
-                } else {
-                    course.classList.add('hidden');
-                }
-            });
-        }
-
-        function switchMobileDay(dayIndex, btn) {
-            const buttons = document.querySelectorAll('.btn-day');
-            buttons.forEach(b => b.classList.remove('active'));
-            btn.classList.add('active');
-
-            const dayGroups = document.querySelectorAll('.day-group');
-
-            dayGroups.forEach((group, index) => {
-                if (dayIndex === 'all') {
-                    group.classList.remove('hidden-day');
-                } else {
-                    if (index === dayIndex) {
-                        group.classList.remove('hidden-day');
-                    } else {
-                        group.classList.add('hidden-day');
+        // 1. 初始化與讀取資料 (Fetch)
+        window.onload = function() {
+            fetch('data.json')
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error(`HTTP error! status: ${response.status}`);
                     }
+                    return response.json();
+                })
+                .then(data => {
+                    // 資料讀取成功
+                    document.getElementById('loading-msg').style.display = 'none';
+                    document.querySelector('.table-container').style.display = 'block'; // 顯示表格
+                    
+                    // 更新標題 (若 JSON 有設定學期)
+                    if(data.metadata && data.metadata.semester) {
+                        document.getElementById('pageTitle').innerText = `${data.metadata.department} ${data.metadata.semester} 課程時間表`;
+                    }
+
+                    // 初始化畫面
+                    initSchedule(data);
+                })
+                .catch(error => {
+                    console.error('Error loading data:', error);
+                    const msgDiv = document.getElementById('loading-msg');
+                    msgDiv.innerHTML = `<span class="error-msg">無法讀取 data.json 資料檔。<br>請確認檔案存在，且透過 Server 模式開啟 (勿直接點擊 HTML)。</span>`;
+                });
+        };
+
+        // 2. 初始化排程畫面
+        function initSchedule(data) {
+            const tableBody = document.getElementById('tableBody');
+            const timeSlots = data.timeSlots;
+            const coursesData = data.courses;
+            
+            tableBody.innerHTML = '';
+
+            // 建立 PC 表格
+            timeSlots.forEach(slot => {
+                const tr = document.createElement('tr');
+                if(slot.isLunch) tr.className = 'lunch';
+
+                tr.innerHTML = `
+                    <td class="period">${slot.period}</td>
+                    <td class="time">${slot.time}</td>
+                `;
+
+                for(let day=1; day<=5; day++) {
+                    const td = document.createElement('td');
+                    // 篩選當天、當節的課程
+                    const coursesToday = coursesData.filter(c => c.day === day && c.periods.includes(slot.period));
+                    
+                    coursesToday.forEach(course => {
+                        const courseDiv = createCourseElement(course);
+                        td.appendChild(courseDiv);
+                    });
+                    tr.appendChild(td);
                 }
+                tableBody.appendChild(tr);
             });
+
+            // 建立手機版畫面
+            generateMobileSchedule(data);
         }
 
-        function generateMobileSchedule() {
-            const table = document.getElementById('scheduleTable');
+        // 3. 建立單一課程 DOM 元素
+        function createCourseElement(course) {
+            const div = document.createElement('div');
+            div.className = `course-item y${course.year} class-${course.classType}`;
+            if (course.required) div.classList.add('required');
+            
+            // 設定篩選屬性
+            div.setAttribute('data-y', course.year);
+            div.setAttribute('data-c', course.classType);
+
+            div.innerHTML = `
+                <span class="badge">${course.className}</span>
+                <span class="course-name">${course.name}</span>
+                <span class="teacher">${course.teacher}</span>
+                <span class="classroom">${course.room}</span>
+            `;
+            return div;
+        }
+
+        // 4. 生成手機版 HTML
+        function generateMobileSchedule(data) {
             const mobileContainer = document.getElementById('mobile-schedule');
-            const dayHeaders = ['星期一', '星期二', '星期三', '星期四', '星期五'];
-            const rows = table.querySelectorAll('tbody tr');
+            mobileContainer.innerHTML = ''; 
+            const dayHeaders = ['週一', '週二', '週三', '週四', '週五'];
+            const timeSlots = data.timeSlots;
+            const coursesData = data.courses;
 
             for (let i = 0; i < 5; i++) {
+                const dayNum = i + 1; 
                 const dayGroup = document.createElement('div');
                 dayGroup.className = 'day-group';
-                dayGroup.setAttribute('data-day-index', i);
+                dayGroup.setAttribute('data-day-index', dayNum);
                 
                 const header = document.createElement('div');
                 header.className = 'day-header';
@@ -881,27 +245,23 @@
                 const dayBody = document.createElement('div');
                 dayBody.className = 'day-body';
 
-                rows.forEach(row => {
-                    const cells = row.querySelectorAll('td');
-                    const period = cells[0].innerText.trim(); 
-                    const time = cells[1].innerHTML; 
-                    const targetCell = cells[i + 2]; 
-
+                // 針對每一天，列出所有時段
+                timeSlots.forEach(slot => {
+                    const courses = coursesData.filter(c => c.day === dayNum && c.periods.includes(slot.period));
+                    
                     const mobileRow = document.createElement('div');
                     mobileRow.className = 'mobile-row';
 
                     const timeCol = document.createElement('div');
                     timeCol.className = 'mobile-time-col';
-                    timeCol.innerHTML = `<span class="m-period">${period}</span><span class="m-time">${time}</span>`;
+                    timeCol.innerHTML = `<span class="m-period">${slot.period}</span><span class="m-time">${slot.time}</span>`;
                     
                     const contentCol = document.createElement('div');
                     contentCol.className = 'mobile-content-col';
 
-                    if (targetCell.children.length > 0) {
-                        Array.from(targetCell.children).forEach(child => {
-                            if (child.classList.contains('course-item')) {
-                                contentCol.appendChild(child.cloneNode(true));
-                            }
+                    if (courses.length > 0) {
+                        courses.forEach(c => {
+                            contentCol.appendChild(createCourseElement(c));
                         });
                     } else {
                         contentCol.innerHTML = '<div class="empty-slot">無課程</div>';
@@ -917,9 +277,76 @@
             }
         }
 
-        window.onload = function() {
-            generateMobileSchedule();
-        };
+        // 5. 篩選邏輯控制
+        function updateFilters(filterCategory, value, btn) {
+            // 更新按鈕樣式
+            const group = btn.parentElement;
+            group.querySelectorAll('.btn').forEach(b => b.classList.remove('active'));
+            btn.classList.add('active');
+
+            // 更新狀態
+            if (filterCategory === 'class') currentClassFilter = value;
+            if (filterCategory === 'type') currentTypeFilter = value;
+
+            applyCourseVisibility();
+        }
+
+        function applyCourseVisibility() {
+            const courses = document.querySelectorAll('.course-item');
+            
+            courses.forEach(course => {
+                const year = course.getAttribute('data-y');
+                const cls = course.getAttribute('data-c'); 
+                const isRequired = course.classList.contains('required');
+                
+                let classMatch = false;
+                let typeMatch = false;
+
+                // 班級篩選
+                if (currentClassFilter === 'all') classMatch = true;
+                else if (currentClassFilter === '4all' && year === '4') classMatch = true;
+                else if (currentClassFilter === '3a' && year === '3' && (cls === 'a' || cls === 'common')) classMatch = true;
+                else if (currentClassFilter === '3b' && year === '3' && (cls === 'b' || cls === 'common')) classMatch = true;
+                else if (currentClassFilter === '2a' && year === '2' && (cls === 'a' || cls === 'common')) classMatch = true;
+                else if (currentClassFilter === '2b' && year === '2' && (cls === 'b' || cls === 'common')) classMatch = true;
+                else if (currentClassFilter === '1a' && year === '1' && (cls === 'a' || cls === 'common')) classMatch = true;
+                else if (currentClassFilter === '1b' && year === '1' && (cls === 'b' || cls === 'common')) classMatch = true;
+
+                // 類別篩選
+                if (currentTypeFilter === 'all') typeMatch = true;
+                else if (currentTypeFilter === 'required' && isRequired) typeMatch = true;
+                else if (currentTypeFilter === 'elective' && !isRequired) typeMatch = true;
+
+                // 兩者皆符合才顯示
+                if (classMatch && typeMatch) {
+                    course.classList.remove('hidden');
+                } else {
+                    course.classList.add('hidden');
+                }
+            });
+        }
+
+        // 6. 手機版週次切換
+        function switchMobileDay(dayIndex, btn) {
+            const buttons = document.querySelectorAll('.btn-day');
+            buttons.forEach(b => b.classList.remove('active'));
+            btn.classList.add('active');
+
+            const dayGroups = document.querySelectorAll('.day-group');
+
+            dayGroups.forEach((group) => {
+                const groupDayIndex = parseInt(group.getAttribute('data-day-index'));
+                if (dayIndex === 'all') {
+                    group.classList.remove('hidden-day');
+                } else {
+                    if (groupDayIndex === dayIndex) {
+                        group.classList.remove('hidden-day');
+                    } else {
+                        group.classList.add('hidden-day');
+                    }
+                }
+            });
+        }
     </script>
 </body>
 </html>
