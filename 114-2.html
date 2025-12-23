@@ -5,70 +5,208 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>資傳系課程時間表</title>
     <style>
-        body { font-family: "Microsoft JhengHei", Helvetica, Arial, sans-serif; background-color: #f4f6f8; margin: 0; padding: 20px; }
-        h2 { text-align: center; color: #333; margin-bottom: 15px; }
-        .filter-container { text-align: center; margin-bottom: 20px; background: #fff; padding: 15px; border-radius: 8px; box-shadow: 0 2px 5px rgba(0,0,0,0.05); position: sticky; top: 0; z-index: 100; }
-        .filter-group { margin: 8px 0; padding-bottom: 8px; border-bottom: 1px dashed #eee; display: flex; align-items: center; justify-content: center; flex-wrap: wrap; gap: 5px; }
-        .filter-group:last-child { border-bottom: none; padding-bottom: 0; }
-        .filter-label { font-size: 14px; color: #666; margin-right: 5px; font-weight: bold; white-space: nowrap; }
-        .btn { background-color: #fff; border: 1px solid #ddd; color: #555; padding: 6px 14px; margin: 2px; border-radius: 20px; cursor: pointer; font-size: 14px; transition: all 0.2s; }
-        .btn:hover { background-color: #f0f0f0; border-color: #bbb; }
-        .btn.active { background-color: #2c3e50; color: #fff; border-color: #2c3e50; box-shadow: 0 2px 4px rgba(44, 62, 80, 0.3); }
-        .btn-day.active { background-color: #e67e22; border-color: #e67e22; }
-        .filter-select { padding: 6px 10px; border-radius: 6px; border: 1px solid #ccc; font-size: 14px; outline: none; min-width: 150px; }
-        .filter-select:focus { border-color: #2c3e50; }
-        .mobile-day-nav { display: none; }
-        .legend { text-align: right; margin-bottom: 10px; font-size: 13px; }
-        .legend span { display: inline-block; margin-left: 15px; padding: 2px 8px; border-radius: 4px; }
-        .legend-req { background-color: #ffebee; border-left: 4px solid #d32f2f; color: #c62828; }
-        .legend-ele { background-color: #fafafa; border-left: 4px solid #ccc; color: #555; }
-        .table-container { background-color: #fff; border-radius: 8px; box-shadow: 0 0 15px rgba(0, 0, 0, 0.1); overflow-x: auto; min-height: 200px; }
-        table { width: 100%; border-collapse: collapse; min-width: 1000px; table-layout: fixed; }
-        th, td { border: 1px solid #e0e0e0; padding: 10px 5px; text-align: center; vertical-align: top; word-wrap: break-word; }
-        th:nth-child(1) { width: 5%; } th:nth-child(2) { width: 10%; }
-        th:nth-child(3), th:nth-child(4), th:nth-child(5), th:nth-child(6), th:nth-child(7) { width: 17%; }
-        thead th { background-color: #2c3e50; color: #fff; padding: 12px 5px; }
-        td.period { font-weight: bold; background-color: #ecf0f1; color: #2c3e50; vertical-align: middle; }
-        td.time { font-size: 12px; color: #7f8c8d; background-color: #f9f9f9; vertical-align: middle; }
-        tr.lunch td { background-color: #fffcf5; color: #d35400; }
-        .course-item { margin-bottom: 8px; padding: 8px; border-radius: 6px; border-left: 5px solid #ccc; background-color: #fafafa; text-align: left; transition: opacity 0.3s; box-shadow: 0 1px 2px rgba(0,0,0,0.05); min-height: 85px; box-sizing: border-box; display: flex; flex-direction: column; justify-content: center; }
-        .course-item.required { background-color: #ffebee !important; border-left-color: #d32f2f !important; border: 1px solid #ffcdd2; border-left-width: 5px; }
-        .course-item.required .course-name::after { content: " (必修)"; font-size: 0.85em; color: #c62828; font-weight: normal; }
-        .course-item.hidden { display: none !important; }
-        .course-name { display: block; font-weight: 700; color: #34495e; font-size: 13px; line-height: 1.4; }
-        .teacher { display: block; font-size: 12px; color: #555; margin-top: 2px; font-weight: bold; }
-        .classroom { display: block; font-size: 12px; color: #7f8c8d; margin-top: 2px; }
-        .badge { display: inline-block; font-size: 11px; padding: 2px 6px; border-radius: 4px; color: white; margin-bottom: 4px; background-color: #95a5a6; }
-        .y1 .badge { background-color: #e67e22; }
-        .y2 .badge { background-color: #2980b9; }
-        .y3 .badge { background-color: #27ae60; }
-        .y4 .badge { background-color: #8e44ad; }
-        .mobile-schedule { display: none; }
-        #loading-msg { text-align: center; padding: 20px; color: #666; font-size: 1.2em; }
-        .error-msg { color: red; font-weight: bold; }
-        @media screen and (max-width: 1000px) {
-            .table-container { display: none; }
-            .mobile-schedule { display: block; }
-            .mobile-day-nav { display: block; }
-            .day-group { margin-bottom: 25px; background: #fff; border-radius: 8px; overflow: hidden; box-shadow: 0 2px 8px rgba(0,0,0,0.1); border: 1px solid #e0e0e0; }
-            .day-group.hidden-day { display: none; }
-            .day-header { background-color: #2c3e50; color: white; padding: 12px 15px; font-size: 1.2em; font-weight: bold; }
-            .day-body { padding: 0 10px; }
-            .mobile-row { display: flex; border-bottom: 1px solid #eee; padding: 12px 0; }
-            .mobile-row:last-child { border-bottom: none; }
-            .mobile-time-col { width: 70px; flex-shrink: 0; text-align: center; border-right: 2px solid #f0f0f0; padding-right: 10px; margin-right: 10px; display: flex; flex-direction: column; justify-content: center; }
-            .m-period { font-size: 1.2em; font-weight: bold; color: #2c3e50; display: block; }
-            .m-time { font-size: 0.8em; color: #999; display: block; margin-top: 4px; line-height: 1.2; }
-            .mobile-content-col { flex-grow: 1; }
-            .empty-slot { color: #ddd; font-size: 0.9em; padding-top: 5px; font-style: italic; }
+    /* --- 基礎全域設定 --- */
+    body { font-family: "Microsoft JhengHei", Helvetica, Arial, sans-serif; background-color: #f4f6f8; margin: 0; padding: 20px; padding-top: 10px; }
+    h2 { text-align: center; color: #333; margin-bottom: 15px; font-size: 1.5rem; }
+
+    /* --- 篩選器容器 (PC版預設) --- */
+    .filter-container { 
+        text-align: center; margin-bottom: 20px; background: #fff; 
+        padding: 15px; border-radius: 12px; 
+        box-shadow: 0 4px 12px rgba(0,0,0,0.08); 
+        position: sticky; top: 10px; z-index: 100; 
+    }
+    
+    .filter-section { display: block; } /* PC版預設展開 */
+    .filter-toggle-btn { display: none; } /* PC版不顯示收合按鈕 */
+
+    .filter-group { 
+        margin: 10px 0; padding-bottom: 10px; border-bottom: 1px dashed #eee; 
+        display: flex; align-items: center; justify-content: center; flex-wrap: wrap; gap: 6px; 
+    }
+    .filter-group:last-child { border-bottom: none; padding-bottom: 0; }
+    
+    .filter-label { font-size: 14px; color: #888; font-weight: bold; margin-right: 5px; }
+
+    /* --- 按鈕樣式 (優化版) --- */
+    .btn { 
+        background-color: #f8f9fa; border: 1px solid #e9ecef; color: #555; 
+        padding: 6px 16px; border-radius: 50px; cursor: pointer; font-size: 14px; 
+        transition: all 0.2s ease; white-space: nowrap; /* 不換行 */
+    }
+    .btn:hover { background-color: #e2e6ea; }
+    .btn.active { 
+        background-color: #2c3e50; color: #fff; border-color: #2c3e50; 
+        box-shadow: 0 2px 6px rgba(44, 62, 80, 0.3); font-weight: 500;
+    }
+    .btn-day.active { background-color: #e67e22; border-color: #e67e22; }
+
+    /* 下拉選單 */
+    .filter-select { padding: 6px 12px; border-radius: 8px; border: 1px solid #ccc; font-size: 14px; outline: none; background: #fff; }
+
+    /* --- 圖例與表格 --- */
+    .legend { text-align: right; margin-bottom: 10px; font-size: 12px; color: #666; }
+    .legend span { display: inline-block; margin-left: 10px; padding: 2px 8px; border-radius: 4px; font-size: 12px;}
+    .legend-req { background-color: #ffebee; border-left: 3px solid #d32f2f; color: #c62828; }
+    .legend-ele { background-color: #fff; border: 1px solid #eee; border-left: 3px solid #ccc; color: #555; }
+
+    .table-container { background-color: #fff; border-radius: 8px; box-shadow: 0 0 15px rgba(0, 0, 0, 0.1); overflow-x: auto; min-height: 200px; }
+    table { width: 100%; border-collapse: collapse; min-width: 1000px; table-layout: fixed; }
+    th, td { border: 1px solid #e0e0e0; padding: 10px 5px; text-align: center; vertical-align: top; word-wrap: break-word; }
+    th:nth-child(1) { width: 5%; } th:nth-child(2) { width: 10%; }
+    th:nth-child(3), th:nth-child(4), th:nth-child(5), th:nth-child(6), th:nth-child(7) { width: 17%; }
+    thead th { background-color: #2c3e50; color: #fff; padding: 12px 5px; }
+    td.period { font-weight: bold; background-color: #ecf0f1; color: #2c3e50; vertical-align: middle; }
+    td.time { font-size: 12px; color: #7f8c8d; background-color: #f9f9f9; vertical-align: middle; }
+    tr.lunch td { background-color: #fffcf5; color: #d35400; }
+
+    /* 課程卡片樣式 */
+    .course-item { margin-bottom: 8px; padding: 10px; border-radius: 8px; border-left: 4px solid #ccc; background-color: #fafafa; text-align: left; transition: opacity 0.3s; box-shadow: 0 2px 4px rgba(0,0,0,0.03); min-height: 85px; box-sizing: border-box; display: flex; flex-direction: column; justify-content: center; }
+    .course-item.required { background-color: #fff5f5 !important; border-left-color: #e53935 !important; border: 1px solid #ffcdd2; border-left-width: 4px; }
+    .course-item.required .course-name::after { content: " (必修)"; font-size: 0.85em; color: #c62828; font-weight: normal; }
+    .course-item.hidden { display: none !important; }
+    .course-name { display: block; font-weight: 700; color: #2c3e50; font-size: 14px; line-height: 1.4; margin-bottom: 2px; }
+    .teacher { display: block; font-size: 13px; color: #555; margin-top: 2px; display: flex; align-items: center; gap: 4px;}
+    .teacher::before { content: "👨‍🏫"; font-size: 10px; opacity: 0.7;}
+    .classroom { display: block; font-size: 12px; color: #888; margin-top: 2px; }
+    .badge { display: inline-block; font-size: 11px; padding: 2px 6px; border-radius: 4px; color: white; margin-bottom: 4px; background-color: #95a5a6; width: fit-content;}
+    .y1 .badge { background-color: #e67e22; }
+    .y2 .badge { background-color: #2980b9; }
+    .y3 .badge { background-color: #27ae60; }
+    .y4 .badge { background-color: #8e44ad; }
+
+    .mobile-schedule { display: none; }
+    #loading-msg { text-align: center; padding: 20px; color: #666; font-size: 1.2em; }
+    .error-msg { color: red; font-weight: bold; }
+
+    /* =========================================
+       ★ 手機版 RWD 優化核心 (Mobile Styling)
+       ========================================= */
+    @media screen and (max-width: 1000px) {
+        body { padding: 10px; padding-top: 5px; }
+        
+        .table-container { display: none; }
+        .mobile-schedule { display: block; }
+        .mobile-day-nav { display: block; }
+
+        /* 1. 篩選器容器優化 */
+        .filter-container {
+            padding: 10px;
+            margin-bottom: 15px;
+            top: 0;
+            border-radius: 0 0 12px 12px; /* 下方圓角 */
+            position: sticky;
+            z-index: 999;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
         }
-    </style>
+
+        /* 2. 週次切換 (永遠顯示，且支援橫向滑動) */
+        .mobile-day-nav {
+            display: flex;
+            overflow-x: auto; /* 允許橫向滑動 */
+            white-space: nowrap;
+            padding-bottom: 5px;
+            margin-bottom: 5px;
+            -webkit-overflow-scrolling: touch; /* 滑動更順暢 */
+            gap: 5px;
+            justify-content: space-between; /* 平均分配 */
+        }
+        /* 隱藏捲軸 */
+        .mobile-day-nav::-webkit-scrollbar { display: none; }
+        
+        .mobile-day-nav .btn {
+            flex: 1; /* 按鈕平均寬度 */
+            margin: 0;
+            text-align: center;
+            padding: 8px 0;
+            font-size: 13px;
+        }
+
+        /* 3. 隱藏/展開按鈕 (Mobile Only) */
+        .filter-toggle-btn {
+            display: block;
+            width: 100%;
+            background: #f8f9fa;
+            border: none;
+            color: #666;
+            padding: 8px;
+            font-size: 12px;
+            border-radius: 6px;
+            cursor: pointer;
+            margin-bottom: 5px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 5px;
+        }
+        .filter-toggle-btn::after { content: "▼"; font-size: 10px; }
+        .filter-toggle-btn.open::after { content: "▲"; }
+
+        /* 4. 進階篩選區塊 (預設隱藏) */
+        .filter-section {
+            display: none; /* 預設隱藏 */
+            padding-top: 10px;
+            border-top: 1px solid #eee;
+            animation: slideDown 0.3s ease;
+        }
+        .filter-section.show { display: block; }
+
+        @keyframes slideDown {
+            from { opacity: 0; transform: translateY(-10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .filter-group {
+            justify-content: flex-start; /* 靠左對齊 */
+            overflow-x: auto; /* 支援橫向滑動 */
+            flex-wrap: nowrap; /* 不換行 */
+            padding-bottom: 8px;
+        }
+        .filter-group::-webkit-scrollbar { height: 4px; }
+        .filter-group::-webkit-scrollbar-thumb { background: #ccc; border-radius: 4px; }
+
+        /* 5. 卡片列表樣式 */
+        .day-group { margin-bottom: 20px; background: #fff; border-radius: 12px; overflow: hidden; box-shadow: 0 2px 10px rgba(0,0,0,0.05); border: 1px solid #f0f0f0; }
+        .day-group.hidden-day { display: none; }
+        .day-header { background-color: #2c3e50; color: white; padding: 10px 15px; font-size: 1.1em; font-weight: bold; position: sticky; top: 125px; z-index: 90; } /* Header sticky */
+        
+        .day-body { padding: 0 10px; }
+        
+        .mobile-row { display: flex; border-bottom: 1px solid #f0f0f0; padding: 12px 0; }
+        .mobile-row:last-child { border-bottom: none; }
+        
+        .mobile-time-col { 
+            width: 60px; flex-shrink: 0; text-align: center; 
+            border-right: 2px solid #f0f0f0; padding-right: 10px; margin-right: 10px; 
+            display: flex; flex-direction: column; justify-content: center; 
+        }
+        .m-period { font-size: 1.4em; font-weight: 800; color: #2c3e50; display: block; }
+        .m-time { font-size: 0.75em; color: #999; display: block; margin-top: 4px; }
+        
+        .mobile-content-col { flex-grow: 1; display: flex; flex-direction: column; justify-content: center;}
+        .empty-slot { color: #ddd; font-size: 0.9em; font-style: italic; padding: 5px; }
+    }
+</style>
 </head>
 <body>
 
     <h2 id="pageTitle">資傳系 課程時間表</h2>
 
-    <div class="filter-container">
+<div class="filter-container">
+    <div class="filter-group mobile-day-nav">
+        <button class="btn btn-day active" onclick="switchMobileDay('all', this)">全部</button>
+        <button class="btn btn-day" onclick="switchMobileDay(1, this)">週一</button>
+        <button class="btn btn-day" onclick="switchMobileDay(2, this)">週二</button>
+        <button class="btn btn-day" onclick="switchMobileDay(3, this)">週三</button>
+        <button class="btn btn-day" onclick="switchMobileDay(4, this)">週四</button>
+        <button class="btn btn-day" onclick="switchMobileDay(5, this)">週五</button>
+    </div>
+
+    <button class="filter-toggle-btn" onclick="toggleFilterSection(this)">
+        進階篩選 (班級、類別、教師)
+    </button>
+
+    <div class="filter-section" id="advancedFilters">
         <div class="filter-group" id="class-filters">
             <span class="filter-label">班級:</span>
             <button class="btn active" onclick="updateFilters('class', 'all', this)">全部</button>
@@ -87,11 +225,13 @@
             <button class="btn" onclick="updateFilters('type', 'required', this)">必修</button>
             <button class="btn" onclick="updateFilters('type', 'elective', this)">選修</button>
             
-            <span class="filter-label" style="margin-left: 15px;">教師:</span>
+            <span class="filter-label" style="margin-left: 10px;">教師:</span>
             <select id="teacherSelect" class="filter-select" onchange="updateFilters('teacher', this.value, this)">
                 <option value="all">全部教師</option>
             </select>
         </div>
+    </div>
+</div>
 
         <div class="filter-group mobile-day-nav">
             <span class="filter-label">週次:</span>
@@ -157,6 +297,19 @@
                     document.getElementById('loading-msg').innerHTML = `<span class="error-msg">無法讀取 data.json。請確認檔案存在並使用 Server 模式開啟。</span>`;
                 });
         };
+
+        // 控制手機版篩選器展開/收合
+function toggleFilterSection(btn) {
+    const section = document.getElementById('advancedFilters');
+    section.classList.toggle('show');
+    btn.classList.toggle('open');
+    
+    if(section.classList.contains('show')) {
+        btn.innerHTML = '收起篩選';
+    } else {
+        btn.innerHTML = '進階篩選 (班級、類別、教師)';
+    }
+}
 
         function initTeacherFilter(courses) {
             const teacherSet = new Set();
