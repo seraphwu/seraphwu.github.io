@@ -3,37 +3,51 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>課程資料管理後台</title>
+    <title>課程資料管理後台 (含讀取功能)</title>
     <style>
         body { font-family: "Microsoft JhengHei", sans-serif; padding: 20px; background: #f0f2f5; }
         h2 { color: #333; }
         
-        .controls { margin-bottom: 20px; background: #fff; padding: 15px; border-radius: 8px; box-shadow: 0 2px 5px rgba(0,0,0,0.1); display: flex; gap: 10px; align-items: center; }
+        .controls { 
+            margin-bottom: 20px; background: #fff; padding: 15px; 
+            border-radius: 8px; box-shadow: 0 2px 5px rgba(0,0,0,0.1); 
+            display: flex; gap: 10px; align-items: center; flex-wrap: wrap;
+        }
         
-        table { width: 100%; border-collapse: collapse; background: #fff; box-shadow: 0 2px 5px rgba(0,0,0,0.1); }
-        th, td { border: 1px solid #ddd; padding: 8px; text-align: left; font-size: 14px; }
-        th { background-color: #2c3e50; color: white; position: sticky; top: 0; }
+        table { width: 100%; border-collapse: collapse; background: #fff; box-shadow: 0 2px 5px rgba(0,0,0,0.1); margin-bottom: 50px;}
+        th, td { border: 1px solid #ddd; padding: 8px; text-align: left; font-size: 14px; vertical-align: top;}
+        th { background-color: #2c3e50; color: white; position: sticky; top: 0; z-index: 10; }
         
         input, select { width: 100%; padding: 5px; box-sizing: border-box; border: 1px solid #ccc; border-radius: 4px; }
         
-        .btn { padding: 8px 15px; cursor: pointer; border: none; border-radius: 4px; color: white; font-weight: bold; }
+        .btn { padding: 8px 15px; cursor: pointer; border: none; border-radius: 4px; color: white; font-weight: bold; font-size: 14px; display: inline-flex; align-items: center; gap: 5px; }
+        .btn-import { background-color: #6c757d; }
         .btn-add { background-color: #28a745; }
         .btn-save { background-color: #007bff; }
         .btn-del { background-color: #dc3545; padding: 5px 10px; font-size: 12px; }
         .btn:hover { opacity: 0.9; }
 
-        .json-preview { margin-top: 20px; }
-        textarea { width: 100%; height: 150px; font-family: monospace; }
+        .json-preview { margin-top: 20px; border-top: 1px solid #ccc; padding-top: 20px; }
+        textarea { width: 100%; height: 150px; font-family: monospace; background: #333; color: #0f0; padding: 10px; border-radius: 5px; }
+        
+        /* 隱藏原本的檔案上傳輸入框，用按鈕觸發 */
+        #fileInput { display: none; }
     </style>
 </head>
 <body>
 
-    <h2>🛠️ 資傳系課程表 - 資料產生器</h2>
+    <h2>🛠️ 資傳系課程表 - 資料管理後台</h2>
 
     <div class="controls">
+        <button class="btn btn-import" onclick="document.getElementById('fileInput').click()">📂 讀取舊檔 (data.json)</button>
+        <input type="file" id="fileInput" accept=".json" onchange="handleFileSelect(this)">
+        
         <button class="btn btn-add" onclick="addNewRow()">+ 新增課程</button>
-        <button class="btn btn-save" onclick="downloadJSON()">⬇️ 下載 data.json</button>
-        <span style="color: #666; font-size: 0.9em; margin-left: auto;">修改完請下載檔案，並覆蓋專案中的 data.json</span>
+        <button class="btn btn-save" onclick="downloadJSON()">⬇️ 下載新檔 (data.json)</button>
+        
+        <span style="color: #666; font-size: 0.9em; margin-left: auto;">
+            操作步驟：1.讀取舊檔 -> 2.修改 -> 3.下載新檔 -> 4.覆蓋專案檔案
+        </span>
     </div>
 
     <table id="editTable">
@@ -41,12 +55,12 @@
             <tr>
                 <th width="8%">代碼</th>
                 <th width="15%">課程名稱</th>
-                <th width="12%">教師</th>
+                <th width="12%">教師 (多人用 / 分隔)</th>
                 <th width="5%">週</th>
-                <th width="8%">節次(用逗號分開)</th>
+                <th width="8%">節次 (逗號隔開)</th>
                 <th width="8%">教室</th>
                 <th width="5%">年級</th>
-                <th width="5%">班級類別</th>
+                <th width="6%">班級類別</th>
                 <th width="5%">必修</th>
                 <th width="8%">顯示班級</th>
                 <th width="5%">操作</th>
@@ -57,30 +71,29 @@
     </table>
 
     <div class="json-preview">
-        <h3>JSON 預覽 (除錯用)</h3>
+        <h3>JSON 資料預覽 (自動生成)</h3>
         <textarea id="jsonOutput" readonly></textarea>
     </div>
 
     <script>
-        // 1. 預設資料 (或是從 fetch 讀取)
-        // 這裡放您最新的 data.json 內容作為初始值
+        // 初始空資料結構
         let currentData = {
             "metadata": { "semester": "113-1", "department": "資傳系" },
-            "timeSlots": [ /* 省略 timeSlots，假設不常改，編輯器只專注改 courses */ ], 
-            "courses": [
-                { "code": "C201", "name": "資訊傳播專題(一)", "teacher": "王大明", "day": 1, "periods": ["3", "4"], "room": "CB205", "year": "2", "classType": "a", "required": true, "className": "二甲" },
-                { "code": "C301", "name": "數據資料分析", "teacher": "李小華", "day": 1, "periods": ["3", "4"], "room": "W401", "year": "3", "classType": "b", "required": true, "className": "三乙" }
-                // ... 更多資料
-            ]
+            "timeSlots": [
+                { "period": "1", "time": "08:10<br>~<br>09:00" },
+                { "period": "2", "time": "09:10<br>~<br>10:00" },
+                { "period": "3", "time": "10:10<br>~<br>11:00" },
+                { "period": "4", "time": "11:10<br>~<br>12:00" },
+                { "period": "5", "time": "12:10<br>~<br>13:00", "isLunch": true },
+                { "period": "6", "time": "13:10<br>~<br>14:00" },
+                { "period": "7", "time": "14:10<br>~<br>15:00" },
+                { "period": "8", "time": "15:10<br>~<br>16:00" },
+                { "period": "9", "time": "16:10<br>~<br>17:00" },
+                { "period": "10", "time": "17:10<br>~<br>18:00" },
+                { "period": "12-14", "time": "19:10<br>~<br>22:00" }
+            ],
+            "courses": [] 
         };
-
-        // 如果您有真實的 timeSlots 結構，請確保輸出的 JSON 包含它，這裡為了示範先補上預設結構
-        const defaultTimeSlots = [
-            { "period": "1", "time": "08:10<br>~<br>09:00" },
-            { "period": "2", "time": "09:10<br>~<br>10:00" },
-            // ... (請將您完整的 timeSlots 貼回這裡以免資料遺失)
-            { "period": "12-14", "time": "19:10<br>~<br>22:00" }
-        ];
 
         // 初始化
         function init() {
@@ -88,15 +101,55 @@
             updatePreview();
         }
 
-        // 渲染表格
+        // ==========================================
+        // 1. 檔案讀取功能 (File Reader)
+        // ==========================================
+        function handleFileSelect(input) {
+            const file = input.files[0];
+            if (!file) return;
+
+            const reader = new FileReader();
+            
+            reader.onload = function(e) {
+                try {
+                    // 解析讀取到的 JSON
+                    const jsonResult = JSON.parse(e.target.result);
+                    
+                    // 更新目前的資料
+                    currentData = jsonResult;
+                    
+                    // 重新渲染畫面
+                    renderTable();
+                    updatePreview();
+                    
+                    alert("✅ 讀取成功！共載入 " + currentData.courses.length + " 筆課程。");
+                } catch (error) {
+                    alert("❌ 讀取失敗：檔案格式錯誤，請確認是有效的 JSON 檔。\n" + error);
+                }
+            };
+            
+            reader.readAsText(file);
+            // 清空 input 讓同一檔案可重複選取
+            input.value = ''; 
+        }
+
+        // ==========================================
+        // 2. 表格渲染 (Render)
+        // ==========================================
         function renderTable() {
             const tbody = document.getElementById('tbody');
             tbody.innerHTML = '';
 
+            // 按照週次與節次簡單排序，方便閱讀
+            currentData.courses.sort((a, b) => {
+                if (a.day !== b.day) return a.day - b.day;
+                return parseInt(a.periods[0]) - parseInt(b.periods[0]);
+            });
+
             currentData.courses.forEach((course, index) => {
                 const tr = document.createElement('tr');
                 tr.innerHTML = `
-                    <td><input type="text" value="${course.code}" onchange="updateData(${index}, 'code', this.value)"></td>
+                    <td><input type="text" value="${course.code || ''}" onchange="updateData(${index}, 'code', this.value)"></td>
                     <td><input type="text" value="${course.name}" onchange="updateData(${index}, 'name', this.value)"></td>
                     <td><input type="text" value="${course.teacher}" onchange="updateData(${index}, 'teacher', this.value)"></td>
                     <td><input type="number" min="1" max="5" value="${course.day}" onchange="updateData(${index}, 'day', parseInt(this.value))"></td>
@@ -123,30 +176,29 @@
             });
         }
 
-        // 更新資料
+        // ==========================================
+        // 3. 資料更新邏輯
+        // ==========================================
         window.updateData = function(index, field, value) {
             currentData.courses[index][field] = value;
             updatePreview();
         };
 
-        // 特別處理節次 (字串轉陣列)
         window.updatePeriods = function(index, value) {
-            // "3,4" -> ["3", "4"]
             const arr = value.split(',').map(s => s.trim());
             currentData.courses[index].periods = arr;
             updatePreview();
         };
 
-        // 新增一行
         window.addNewRow = function() {
+            // 新增一筆預設資料
             currentData.courses.unshift({
-                code: "NEW001", name: "新課程", teacher: "老師", day: 1, periods: ["1"], room: "", year: "1", classType: "common", required: false, className: "大一"
+                code: "NEW", name: "新課程", teacher: "老師", day: 1, periods: ["1"], room: "教室", year: "1", classType: "common", required: false, className: "大一"
             });
             renderTable();
             updatePreview();
         };
 
-        // 刪除一行
         window.deleteRow = function(index) {
             if(confirm("確定要刪除這堂課嗎？")) {
                 currentData.courses.splice(index, 1);
@@ -155,18 +207,14 @@
             }
         };
 
-        // 更新 JSON 預覽
+        // 更新 JSON 預覽區塊
         function updatePreview() {
-            // 組合完整的結構
-            const fullData = {
-                metadata: currentData.metadata,
-                timeSlots: defaultTimeSlots, // 確保這部分一直存在
-                courses: currentData.courses
-            };
-            document.getElementById('jsonOutput').value = JSON.stringify(fullData, null, 2);
+            document.getElementById('jsonOutput').value = JSON.stringify(currentData, null, 2);
         }
 
-        // 下載 JSON 檔案
+        // ==========================================
+        // 4. 下載功能
+        // ==========================================
         window.downloadJSON = function() {
             const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(document.getElementById('jsonOutput').value);
             const downloadAnchorNode = document.createElement('a');
