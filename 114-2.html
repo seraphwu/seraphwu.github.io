@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>資傳系課程時間表 (固定寬度版)</title>
+    <title>資傳系課程時間表</title>
     <style>
         body {
             font-family: "Microsoft JhengHei", "Helvetica Neue", Helvetica, Arial, sans-serif;
@@ -15,10 +15,9 @@
         h2 {
             text-align: center;
             color: #333;
-            margin-bottom: 10px;
+            margin-bottom: 15px;
         }
 
-        /* Filter Controls */
         .filter-container {
             text-align: center;
             margin-bottom: 20px;
@@ -26,6 +25,9 @@
             padding: 15px;
             border-radius: 8px;
             box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+            position: sticky;
+            top: 0;
+            z-index: 100;
         }
 
         .filter-group {
@@ -63,44 +65,119 @@
             box-shadow: 0 2px 4px rgba(44, 62, 80, 0.3);
         }
 
-        /* Table Styling - FIXED WIDTH SETUP */
+        .legend {
+            text-align: right;
+            margin-bottom: 10px;
+            font-size: 13px;
+        }
+
+        .legend span {
+            display: inline-block;
+            margin-left: 15px;
+            padding: 2px 8px;
+            border-radius: 4px;
+        }
+
+        .legend-req {
+            background-color: #ffebee;
+            border-left: 4px solid #d32f2f;
+            color: #c62828;
+        }
+
+        .legend-ele {
+            background-color: #fafafa;
+            border-left: 4px solid #ccc;
+            color: #555;
+        }
+
+        .course-item {
+            margin-bottom: 8px;
+            padding: 8px;
+            border-radius: 6px;
+            border-left: 5px solid #ccc;
+            background-color: #fafafa;
+            text-align: left;
+            transition: opacity 0.3s;
+            box-shadow: 0 1px 2px rgba(0,0,0,0.05);
+        }
+
+        .course-item.required {
+            background-color: #ffebee !important;
+            border-left-color: #d32f2f !important;
+            border: 1px solid #ffcdd2;
+            border-left-width: 5px;
+        }
+
+        .course-item.required .course-name::after {
+            content: " (必修)";
+            font-size: 0.85em;
+            color: #c62828;
+            font-weight: normal;
+        }
+
+        .course-item.hidden {
+            display: none !important;
+        }
+
+        .course-name {
+            display: block;
+            font-weight: 700;
+            color: #34495e;
+            font-size: 13px;
+            line-height: 1.4;
+        }
+
+        .classroom {
+            display: block;
+            font-size: 12px;
+            color: #7f8c8d;
+            margin-top: 4px;
+        }
+
+        .badge {
+            display: inline-block;
+            font-size: 11px;
+            padding: 2px 6px;
+            border-radius: 4px;
+            color: white;
+            margin-bottom: 4px;
+            background-color: #95a5a6;
+        }
+
+        .y1 .badge { background-color: #e67e22; }
+        .y2 .badge { background-color: #2980b9; }
+        .y3 .badge { background-color: #27ae60; }
+        .y4 .badge { background-color: #8e44ad; }
+
         .table-container {
-            overflow-x: auto; /* Allow scroll on small screens */
             background-color: #fff;
             border-radius: 8px;
             box-shadow: 0 0 15px rgba(0, 0, 0, 0.1);
+            overflow-x: auto;
         }
 
         table {
             width: 100%;
             border-collapse: collapse;
-            min-width: 1000px; /* Ensure table doesn't get too squished */
-            table-layout: fixed; /* 重要：固定表格佈局 */
+            min-width: 1000px;
+            table-layout: fixed;
         }
 
         th, td {
             border: 1px solid #e0e0e0;
-            padding: 10px 5px; /* Reduced side padding */
+            padding: 10px 5px;
             text-align: center;
-            font-size: 14px;
             vertical-align: top;
-            word-wrap: break-word; /* 重要：長文字自動換行 */
-            overflow-wrap: break-word;
+            word-wrap: break-word;
         }
 
-        /* 設定特定欄位寬度 */
-        th:nth-child(1) { width: 5%; }  /* 節次 */
-        th:nth-child(2) { width: 10%; } /* 時間 */
-        th:nth-child(3),
-        th:nth-child(4),
-        th:nth-child(5),
-        th:nth-child(6),
-        th:nth-child(7) { width: 17%; } /* 星期一到五平均分配 */
+        th:nth-child(1) { width: 5%; }
+        th:nth-child(2) { width: 10%; }
+        th:nth-child(3), th:nth-child(4), th:nth-child(5), th:nth-child(6), th:nth-child(7) { width: 17%; }
 
         thead th {
             background-color: #2c3e50;
             color: #fff;
-            font-weight: bold;
             padding: 12px 5px;
         }
 
@@ -118,88 +195,93 @@
             vertical-align: middle;
         }
 
-        /* Course Item Styling */
-        .course-item {
-            margin-bottom: 8px;
-            padding: 8px;
-            border-radius: 6px;
-            border-left: 5px solid #ccc;
-            background-color: #fafafa;
-            text-align: left;
-            transition: opacity 0.3s;
-            box-shadow: 0 1px 2px rgba(0,0,0,0.05);
-        }
-        
-        /* REQUIRED COURSE STYLING (必修紅底) */
-        .course-item.required {
-            background-color: #ffebee !important;
-            border-left-color: #d32f2f !important;
-            border: 1px solid #ffcdd2;
-            border-left-width: 5px;
-        }
-
-        .course-item.required .course-name::after {
-            content: " (必修)";
-            font-size: 0.85em;
-            color: #c62828;
-            font-weight: normal;
-        }
-
-        .course-item.hidden {
-            display: none;
-        }
-
-        .course-name {
-            display: block;
-            font-weight: 700;
-            color: #34495e;
-            font-size: 13px;
-            line-height: 1.4;
-        }
-
-        .classroom {
-            display: block;
-            font-size: 12px;
-            color: #7f8c8d;
-            margin-top: 4px;
-        }
-        
-        .badge {
-            display: inline-block;
-            font-size: 11px;
-            padding: 2px 6px;
-            border-radius: 4px;
-            color: white;
-            margin-bottom: 4px;
-            background-color: #95a5a6;
-        }
-
-        .y1 .badge { background-color: #e67e22; }
-        .y2 .badge { background-color: #2980b9; }
-        .y3 .badge { background-color: #27ae60; }
-        .y4 .badge { background-color: #8e44ad; }
-
         tr.lunch td {
             background-color: #fffcf5;
             color: #d35400;
-            font-size: 12px;
-            padding: 5px;
-            vertical-align: middle;
         }
-        
-        .legend {
-            text-align: right;
-            margin-bottom: 10px;
-            font-size: 13px;
+
+        .mobile-schedule {
+            display: none;
         }
-        .legend span {
-            display: inline-block;
-            margin-left: 15px;
-            padding: 2px 8px;
-            border-radius: 4px;
+
+        @media screen and (max-width: 1000px) {
+            .table-container {
+                display: none;
+            }
+            
+            .mobile-schedule {
+                display: block;
+            }
+
+            .day-group {
+                margin-bottom: 25px;
+                background: #fff;
+                border-radius: 8px;
+                overflow: hidden;
+                box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+                border: 1px solid #e0e0e0;
+            }
+
+            .day-header {
+                background-color: #2c3e50;
+                color: white;
+                padding: 12px 15px;
+                font-size: 1.2em;
+                font-weight: bold;
+            }
+
+            .day-body {
+                padding: 0 10px;
+            }
+
+            .mobile-row {
+                display: flex;
+                border-bottom: 1px solid #eee;
+                padding: 12px 0;
+            }
+
+            .mobile-row:last-child {
+                border-bottom: none;
+            }
+
+            .mobile-time-col {
+                width: 70px;
+                flex-shrink: 0;
+                text-align: center;
+                border-right: 2px solid #f0f0f0;
+                padding-right: 10px;
+                margin-right: 10px;
+                display: flex;
+                flex-direction: column;
+                justify-content: center;
+            }
+
+            .m-period {
+                font-size: 1.2em;
+                font-weight: bold;
+                color: #2c3e50;
+                display: block;
+            }
+
+            .m-time {
+                font-size: 0.8em;
+                color: #999;
+                display: block;
+                margin-top: 4px;
+                line-height: 1.2;
+            }
+
+            .mobile-content-col {
+                flex-grow: 1;
+            }
+
+            .empty-slot {
+                color: #ddd;
+                font-size: 0.9em;
+                padding-top: 5px;
+                font-style: italic;
+            }
         }
-        .legend-req { background-color: #ffebee; border-left: 4px solid #d32f2f; color: #c62828; }
-        .legend-ele { background-color: #fafafa; border-left: 4px solid #ccc; color: #555; }
     </style>
 </head>
 <body>
@@ -211,23 +293,14 @@
             <button class="btn active" onclick="filterCourses('all', this)">全部顯示</button>
         </div>
         <div class="filter-group">
-            <span class="filter-label">大四</span>
+            <span class="filter-label">篩選:</span>
             <button class="btn" onclick="filterCourses('4all', this)">大四</button>
-        </div>
-        <div class="filter-group">
-            <span class="filter-label">大三</span>
-            <button class="btn" onclick="filterCourses('3a', this)">大三甲</button>
-            <button class="btn" onclick="filterCourses('3b', this)">大三乙</button>
-        </div>
-        <div class="filter-group">
-            <span class="filter-label">大二</span>
-            <button class="btn" onclick="filterCourses('2a', this)">大二甲</button>
-            <button class="btn" onclick="filterCourses('2b', this)">大二乙</button>
-        </div>
-        <div class="filter-group">
-            <span class="filter-label">大一</span>
-            <button class="btn" onclick="filterCourses('1a', this)">大一甲</button>
-            <button class="btn" onclick="filterCourses('1b', this)">大一乙</button>
+            <button class="btn" onclick="filterCourses('3a', this)">3甲</button>
+            <button class="btn" onclick="filterCourses('3b', this)">3乙</button>
+            <button class="btn" onclick="filterCourses('2a', this)">2甲</button>
+            <button class="btn" onclick="filterCourses('2b', this)">2乙</button>
+            <button class="btn" onclick="filterCourses('1a', this)">1甲</button>
+            <button class="btn" onclick="filterCourses('1b', this)">1乙</button>
         </div>
     </div>
 
@@ -237,7 +310,7 @@
     </div>
 
     <div class="table-container">
-        <table>
+        <table id="scheduleTable">
             <thead>
                 <tr>
                     <th>節</th>
@@ -338,6 +411,10 @@
                             <span class="badge">2年</span> <span class="course-name">網站規劃與設計</span>
                             <span class="classroom">R502</span>
                         </div>
+                        <div class="course-item y3 class-a required" data-y="3" data-c="a">
+                            <span class="badge">3甲</span> <span class="course-name">資料庫系統開發實務</span>
+                            <span class="classroom">M306</span>
+                        </div>
                     </td>
                     <td>
                         <div class="course-item y2 class-common required" data-y="2" data-c="common">
@@ -432,7 +509,7 @@
                     </td>
                     <td></td>
                     <td>
-                         <div class="course-item y3 class-a required" data-y="3" data-c="a">
+                        <div class="course-item y3 class-a required" data-y="3" data-c="a">
                             <span class="badge">3甲</span> <span class="course-name">資料庫系統開發實務</span>
                             <span class="classroom">M306</span>
                         </div>
@@ -637,7 +714,7 @@
                             <span class="badge">2年</span> <span class="course-name">系統分析</span>
                             <span class="classroom">G502</span>
                         </div>
-                         <div class="course-item y3 class-common" data-y="3" data-c="common">
+                        <div class="course-item y3 class-common" data-y="3" data-c="common">
                             <span class="badge">3年</span> <span class="course-name">知識管理與商業智慧</span>
                             <span class="classroom">R102</span>
                         </div>
@@ -668,54 +745,92 @@
         </table>
     </div>
 
+    <div id="mobile-schedule" class="mobile-schedule"></div>
+
     <script>
-        function filterCourses(filterType, btnElement) {
-            // Update active button state
+        function filterCourses(type, btn) {
             const buttons = document.querySelectorAll('.btn');
-            buttons.forEach(btn => btn.classList.remove('active'));
-            btnElement.classList.add('active');
+            buttons.forEach(b => b.classList.remove('active'));
+            btn.classList.add('active');
 
             const courses = document.querySelectorAll('.course-item');
-
+            
             courses.forEach(course => {
                 const year = course.getAttribute('data-y');
-                const cls = course.getAttribute('data-c'); // a, b, or common
+                const cls = course.getAttribute('data-c'); 
+                let show = false;
 
-                let shouldShow = false;
+                if (type === 'all') show = true;
+                else if (type === '4all' && year === '4') show = true;
+                else if (type === '3a' && year === '3' && (cls === 'a' || cls === 'common')) show = true;
+                else if (type === '3b' && year === '3' && (cls === 'b' || cls === 'common')) show = true;
+                else if (type === '2a' && year === '2' && (cls === 'a' || cls === 'common')) show = true;
+                else if (type === '2b' && year === '2' && (cls === 'b' || cls === 'common')) show = true;
+                else if (type === '1a' && year === '1' && (cls === 'a' || cls === 'common')) show = true;
+                else if (type === '1b' && year === '1' && (cls === 'b' || cls === 'common')) show = true;
 
-                if (filterType === 'all') {
-                    shouldShow = true;
-                } 
-                else if (filterType === '4all') {
-                    if (year === '4') shouldShow = true;
-                }
-                else if (filterType === '3a') {
-                    if (year === '3' && (cls === 'a' || cls === 'common')) shouldShow = true;
-                }
-                else if (filterType === '3b') {
-                    if (year === '3' && (cls === 'b' || cls === 'common')) shouldShow = true;
-                }
-                else if (filterType === '2a') {
-                    if (year === '2' && (cls === 'a' || cls === 'common')) shouldShow = true;
-                }
-                else if (filterType === '2b') {
-                    if (year === '2' && (cls === 'b' || cls === 'common')) shouldShow = true;
-                }
-                else if (filterType === '1a') {
-                    if (year === '1' && (cls === 'a' || cls === 'common')) shouldShow = true;
-                }
-                else if (filterType === '1b') {
-                    if (year === '1' && (cls === 'b' || cls === 'common')) shouldShow = true;
-                }
-
-                if (shouldShow) {
-                    course.classList.remove('hidden');
-                } else {
-                    course.classList.add('hidden');
-                }
+                if (show) course.classList.remove('hidden');
+                else course.classList.add('hidden');
             });
         }
-    </script>
 
+        function generateMobileSchedule() {
+            const table = document.getElementById('scheduleTable');
+            const mobileContainer = document.getElementById('mobile-schedule');
+            const dayHeaders = ['星期一', '星期二', '星期三', '星期四', '星期五'];
+            const rows = table.querySelectorAll('tbody tr');
+
+            for (let i = 0; i < 5; i++) {
+                const dayGroup = document.createElement('div');
+                dayGroup.className = 'day-group';
+                
+                const header = document.createElement('div');
+                header.className = 'day-header';
+                header.innerHTML = `<span>${dayHeaders[i]}</span>`;
+                dayGroup.appendChild(header);
+
+                const dayBody = document.createElement('div');
+                dayBody.className = 'day-body';
+
+                rows.forEach(row => {
+                    const cells = row.querySelectorAll('td');
+                    const period = cells[0].innerText.trim(); 
+                    const time = cells[1].innerHTML; 
+                    const targetCell = cells[i + 2]; 
+
+                    const mobileRow = document.createElement('div');
+                    mobileRow.className = 'mobile-row';
+
+                    const timeCol = document.createElement('div');
+                    timeCol.className = 'mobile-time-col';
+                    timeCol.innerHTML = `<span class="m-period">${period}</span><span class="m-time">${time}</span>`;
+                    
+                    const contentCol = document.createElement('div');
+                    contentCol.className = 'mobile-content-col';
+
+                    if (targetCell.children.length > 0) {
+                        Array.from(targetCell.children).forEach(child => {
+                            if (child.classList.contains('course-item')) {
+                                contentCol.appendChild(child.cloneNode(true));
+                            }
+                        });
+                    } else {
+                        contentCol.innerHTML = '<div class="empty-slot">無課程</div>';
+                    }
+
+                    mobileRow.appendChild(timeCol);
+                    mobileRow.appendChild(contentCol);
+                    dayBody.appendChild(mobileRow);
+                });
+
+                dayGroup.appendChild(dayBody);
+                mobileContainer.appendChild(dayGroup);
+            }
+        }
+
+        window.onload = function() {
+            generateMobileSchedule();
+        };
+    </script>
 </body>
 </html>
