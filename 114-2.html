@@ -192,55 +192,44 @@
 
     <h2 id="pageTitle">資傳系 課程時間表</h2>
 
-<div class="filter-container">
-    <div class="filter-group mobile-day-nav">
-        <button class="btn btn-day active" onclick="switchMobileDay('all', this)">全部</button>
-        <button class="btn btn-day" onclick="switchMobileDay(1, this)">週一</button>
-        <button class="btn btn-day" onclick="switchMobileDay(2, this)">週二</button>
-        <button class="btn btn-day" onclick="switchMobileDay(3, this)">週三</button>
-        <button class="btn btn-day" onclick="switchMobileDay(4, this)">週四</button>
-        <button class="btn btn-day" onclick="switchMobileDay(5, this)">週五</button>
-    </div>
-
-    <button class="filter-toggle-btn" onclick="toggleFilterSection(this)">
-        進階篩選 (班級、類別、教師)
-    </button>
-
-    <div class="filter-section" id="advancedFilters">
-        <div class="filter-group" id="class-filters">
-            <span class="filter-label">班級:</span>
-            <button class="btn active" onclick="updateFilters('class', 'all', this)">全部</button>
-            <button class="btn" onclick="updateFilters('class', '4all', this)">大四</button>
-            <button class="btn" onclick="updateFilters('class', '3a', this)">三甲</button>
-            <button class="btn" onclick="updateFilters('class', '3b', this)">三乙</button>
-            <button class="btn" onclick="updateFilters('class', '2a', this)">二甲</button>
-            <button class="btn" onclick="updateFilters('class', '2b', this)">二乙</button>
-            <button class="btn" onclick="updateFilters('class', '1a', this)">一甲</button>
-            <button class="btn" onclick="updateFilters('class', '1b', this)">一乙</button>
-        </div>
-
-        <div class="filter-group">
-            <span class="filter-label">類別:</span>
-            <button class="btn active" onclick="updateFilters('type', 'all', this)">全部</button>
-            <button class="btn" onclick="updateFilters('type', 'required', this)">必修</button>
-            <button class="btn" onclick="updateFilters('type', 'elective', this)">選修</button>
-            
-            <span class="filter-label" style="margin-left: 10px;">教師:</span>
-            <select id="teacherSelect" class="filter-select" onchange="updateFilters('teacher', this.value, this)">
-                <option value="all">全部教師</option>
-            </select>
-        </div>
-    </div>
-</div>
-
+    <div class="filter-container">
         <div class="filter-group mobile-day-nav">
-            <span class="filter-label">週次:</span>
             <button class="btn btn-day active" onclick="switchMobileDay('all', this)">全部</button>
             <button class="btn btn-day" onclick="switchMobileDay(1, this)">週一</button>
             <button class="btn btn-day" onclick="switchMobileDay(2, this)">週二</button>
             <button class="btn btn-day" onclick="switchMobileDay(3, this)">週三</button>
             <button class="btn btn-day" onclick="switchMobileDay(4, this)">週四</button>
             <button class="btn btn-day" onclick="switchMobileDay(5, this)">週五</button>
+        </div>
+
+        <button class="filter-toggle-btn" onclick="toggleFilterSection(this)">
+            進階篩選 (班級、類別、教師)
+        </button>
+
+        <div class="filter-section" id="advancedFilters">
+            <div class="filter-group" id="class-filters">
+                <span class="filter-label">班級:</span>
+                <button class="btn active" onclick="updateFilters('class', 'all', this)">全部</button>
+                <button class="btn" onclick="updateFilters('class', '4all', this)">大四</button>
+                <button class="btn" onclick="updateFilters('class', '3a', this)">三甲</button>
+                <button class="btn" onclick="updateFilters('class', '3b', this)">三乙</button>
+                <button class="btn" onclick="updateFilters('class', '2a', this)">二甲</button>
+                <button class="btn" onclick="updateFilters('class', '2b', this)">二乙</button>
+                <button class="btn" onclick="updateFilters('class', '1a', this)">一甲</button>
+                <button class="btn" onclick="updateFilters('class', '1b', this)">一乙</button>
+            </div>
+
+            <div class="filter-group">
+                <span class="filter-label">類別:</span>
+                <button class="btn active" onclick="updateFilters('type', 'all', this)">全部</button>
+                <button class="btn" onclick="updateFilters('type', 'required', this)">必修</button>
+                <button class="btn" onclick="updateFilters('type', 'elective', this)">選修</button>
+                
+                <span class="filter-label" style="margin-left: 10px;">教師:</span>
+                <select id="teacherSelect" class="filter-select" onchange="updateFilters('teacher', this.value, this)">
+                    <option value="all">全部教師</option>
+                </select>
+            </div>
         </div>
     </div>
 
