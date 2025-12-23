@@ -4,17 +4,17 @@
     "department": "資傳系"
   },
   "timeSlots": [
-    { "period": "1", "time": "08:10<br>~<br>09:00" },
-    { "period": "2", "time": "09:10<br>~<br>10:00" },
-    { "period": "3", "time": "10:10<br>~<br>11:00" },
-    { "period": "4", "time": "11:10<br>~<br>12:00" },
-    { "period": "5", "time": "12:10<br>~<br>13:00", "isLunch": true },
-    { "period": "6", "time": "13:10<br>~<br>14:00" },
-    { "period": "7", "time": "14:10<br>~<br>15:00" },
-    { "period": "8", "time": "15:10<br>~<br>16:00" },
-    { "period": "9", "time": "16:10<br>~<br>17:00" },
-    { "period": "10", "time": "17:10<br>~<br>18:00" },
-    { "period": "12-14", "time": "19:10<br>~<br>22:00" }
+    { "period": "1", "label": "1", "time": "08:10<br>~<br>09:00" },
+    { "period": "2", "label": "2", "time": "09:10<br>~<br>10:00" },
+    { "period": "3", "label": "3", "time": "10:10<br>~<br>11:00" },
+    { "period": "4", "label": "4", "time": "11:10<br>~<br>12:00" },
+    { "period": "5", "label": "5", "time": "12:10<br>~<br>13:00", "isLunch": true },
+    { "period": "6", "label": "6", "time": "13:10<br>~<br>14:00" },
+    { "period": "7", "label": "7", "time": "14:10<br>~<br>15:00" },
+    { "period": "8", "label": "8", "time": "15:10<br>~<br>16:00" },
+    { "period": "9", "label": "9", "time": "16:10<br>~<br>17:00" },
+    { "period": "10", "label": "10", "time": "17:10<br>~<br>18:00" },
+    { "period": "12", "label": "12-14", "time": "19:10<br>~<br>22:00" }
   ],
   "courses": [
     { "code": "INFO-238-01-A1", "name": "資訊傳播專題(一)", "teacher": "莊道明", "day": 1, "periods": ["3", "4"], "room": "CB205", "year": "2", "classType": "a", "required": true, "className": "二甲" },
