@@ -1,0 +1,586 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>資傳系課程時間表</title>
+    <style>
+        /* --- 基礎全域設定 --- */
+        body { font-family: "Microsoft JhengHei", Helvetica, Arial, sans-serif; background-color: #f4f6f8; margin: 0; padding: 20px; padding-top: 10px; }
+        h2 { text-align: center; color: #333; margin-bottom: 15px; font-size: 1.5rem; }
+
+        /* --- 篩選器容器 (Sticky) --- */
+        .filter-container { 
+            text-align: center; margin-bottom: 20px; background: #fff; 
+            padding: 15px; border-radius: 12px; 
+            box-shadow: 0 4px 12px rgba(0,0,0,0.08); 
+            position: sticky; top: 10px; z-index: 100; 
+        }
+        
+        .filter-toggle-btn { display: none; } 
+        .filter-section { display: block; } 
+
+        .filter-group { 
+            margin: 10px 0; padding-bottom: 10px; border-bottom: 1px dashed #eee; 
+            display: flex; align-items: center; justify-content: center; flex-wrap: wrap; gap: 6px; 
+        }
+        .filter-group:last-child { border-bottom: none; padding-bottom: 0; }
+        
+        .filter-label { font-size: 14px; color: #888; font-weight: bold; margin-right: 5px; }
+
+        /* --- 按鈕樣式 --- */
+        .btn { 
+            background-color: #f8f9fa; border: 1px solid #e9ecef; color: #555; 
+            padding: 6px 16px; border-radius: 50px; cursor: pointer; font-size: 14px; 
+            transition: all 0.2s ease; white-space: nowrap; 
+        }
+        .btn:hover { background-color: #e2e6ea; }
+        .btn.active { 
+            background-color: #2c3e50; color: #fff; border-color: #2c3e50; 
+            box-shadow: 0 2px 6px rgba(44, 62, 80, 0.3); font-weight: 500;
+        }
+        
+        .filter-select { padding: 6px 12px; border-radius: 8px; border: 1px solid #ccc; font-size: 14px; outline: none; background: #fff; }
+
+        /* --- 學期選擇特別樣式 --- */
+        #semesterSelect {
+            border: 2px solid #3498db;
+            color: #2980b9;
+            font-weight: bold;
+            background-color: #f0f8ff;
+        }
+
+        /* --- 圖例 --- */
+        .legend { text-align: right; margin-bottom: 10px; font-size: 12px; color: #666; }
+        .legend span { display: inline-block; margin-left: 10px; padding: 2px 8px; border-radius: 4px; font-size: 12px;}
+        .legend-req { background-color: #ffebee; border-left: 3px solid #d32f2f; color: #c62828; }
+        .legend-ele { background-color: #fff; border: 1px solid #eee; border-left: 3px solid #ccc; color: #555; }
+
+        /* --- PC 表格樣式 --- */
+        .table-container { background-color: #fff; border-radius: 8px; box-shadow: 0 0 15px rgba(0, 0, 0, 0.1); overflow-x: auto; min-height: 200px; display: block; }
+        table { width: 100%; border-collapse: collapse; min-width: 1000px; table-layout: fixed; }
+        th, td { border: 1px solid #e0e0e0; padding: 10px 5px; text-align: center; vertical-align: top; word-wrap: break-word; }
+        th:nth-child(1) { width: 5%; } th:nth-child(2) { width: 10%; }
+        th:nth-child(3), th:nth-child(4), th:nth-child(5), th:nth-child(6), th:nth-child(7) { width: 17%; }
+        thead th { background-color: #2c3e50; color: #fff; padding: 12px 5px; }
+        td.period { font-weight: bold; background-color: #ecf0f1; color: #2c3e50; vertical-align: middle; }
+        td.time { font-size: 12px; color: #7f8c8d; background-color: #f9f9f9; vertical-align: middle; }
+        tr.lunch td { background-color: #fffcf5; color: #d35400; }
+
+        /* --- 課程卡片樣式 --- */
+        .course-item { margin-bottom: 8px; padding: 10px; border-radius: 8px; border-left: 4px solid #ccc; background-color: #fafafa; text-align: left; transition: opacity 0.3s; box-shadow: 0 2px 4px rgba(0,0,0,0.03); min-height: 85px; box-sizing: border-box; display: flex; flex-direction: column; justify-content: center; }
+        .course-item.required { background-color: #fff5f5 !important; border-left-color: #e53935 !important; border: 1px solid #ffcdd2; border-left-width: 4px; }
+        .course-item.required .course-name::after { content: " (必修)"; font-size: 0.85em; color: #c62828; font-weight: normal; }
+        .course-item.hidden { display: none !important; }
+        
+        .course-name { display: block; font-weight: 700; color: #2c3e50; font-size: 14px; line-height: 1.4; margin-bottom: 2px; }
+        .teacher { display: block; font-size: 13px; color: #555; margin-top: 2px; display: flex; align-items: center; gap: 4px;}
+        .teacher::before { content: "👨‍🏫"; font-size: 10px; opacity: 0.7;}
+        .classroom { display: block; font-size: 12px; color: #888; margin-top: 2px; }
+        .badge { display: inline-block; font-size: 11px; padding: 2px 6px; border-radius: 4px; color: white; margin-bottom: 4px; background-color: #95a5a6; width: fit-content;}
+        .y1 .badge { background-color: #e67e22; }
+        .y2 .badge { background-color: #2980b9; }
+        .y3 .badge { background-color: #27ae60; }
+        .y4 .badge { background-color: #8e44ad; }
+
+        .mobile-schedule { display: none; }
+        .mobile-day-nav { display: none; } 
+
+        #loading-msg { text-align: center; padding: 20px; color: #666; font-size: 1.2em; }
+        .error-msg { color: red; font-weight: bold; }
+
+        /* =========================================
+           ★ 手機版 RWD 設定
+           ========================================= */
+        @media screen and (max-width: 1000px) {
+            body { padding: 10px; padding-top: 5px; }
+            
+            .table-container { display: none !important; } 
+            .mobile-schedule { display: block; }            
+            .mobile-day-nav { display: flex; }              
+
+            .filter-container {
+                padding: 10px; margin-bottom: 15px; top: 0;
+                border-radius: 0 0 12px 12px; position: sticky; z-index: 999;
+                box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+            }
+
+            .mobile-day-nav {
+                overflow-x: auto; white-space: nowrap; padding-bottom: 5px; margin-bottom: 5px;
+                gap: 5px; justify-content: space-between;
+            }
+            .mobile-day-nav::-webkit-scrollbar { display: none; }
+            .mobile-day-nav .btn { flex: 1; margin: 0; text-align: center; padding: 8px 0; font-size: 13px; }
+
+            .filter-toggle-btn {
+                display: flex; width: 100%; background: #f8f9fa; border: none; color: #666;
+                padding: 8px; font-size: 12px; border-radius: 6px; cursor: pointer;
+                margin-bottom: 5px; align-items: center; justify-content: center; gap: 5px;
+            }
+            .filter-toggle-btn::after { content: "▼"; font-size: 10px; }
+            .filter-toggle-btn.open::after { content: "▲"; }
+
+            .filter-section {
+                display: none; padding-top: 10px; border-top: 1px solid #eee;
+                animation: slideDown 0.3s ease;
+            }
+            .filter-section.show { display: block; }
+            @keyframes slideDown { from { opacity: 0; transform: translateY(-10px); } to { opacity: 1; transform: translateY(0); } }
+
+            .filter-group { justify-content: flex-start; overflow-x: auto; flex-wrap: nowrap; padding-bottom: 8px; }
+            
+            .day-group { margin-bottom: 20px; background: #fff; border-radius: 12px; overflow: hidden; box-shadow: 0 2px 10px rgba(0,0,0,0.05); border: 1px solid #f0f0f0; }
+            .day-group.hidden-day { display: none; } 
+            
+            .day-header { 
+                background-color: #2c3e50; 
+                color: white; 
+                padding: 10px 15px; 
+                font-size: 1.1em; 
+                font-weight: bold; 
+                position: relative; /* 取消 sticky 以免擋住 */
+            }
+            
+            .day-body { padding: 0 10px; }
+            
+            .mobile-row { display: flex; border-bottom: 1px solid #f0f0f0; padding: 12px 0; }
+            .mobile-row:last-child { border-bottom: none; }
+            
+            .mobile-time-col { 
+                width: 60px; flex-shrink: 0; text-align: center; 
+                border-right: 2px solid #f0f0f0; padding-right: 10px; margin-right: 10px; 
+                display: flex; flex-direction: column; justify-content: center; 
+            }
+            .m-period { font-size: 1.4em; font-weight: 800; color: #2c3e50; display: block; }
+            .m-time { font-size: 0.75em; color: #999; display: block; margin-top: 4px; }
+            
+            .mobile-content-col { flex-grow: 1; display: flex; flex-direction: column; justify-content: center;}
+            .empty-slot { color: #ddd; font-size: 0.9em; font-style: italic; padding: 5px; }
+        }
+    </style>
+</head>
+<body>
+
+    <h2 id="pageTitle">課程時間表</h2>
+
+    <div class="filter-container">
+        <div class="filter-group">
+            <span class="filter-label" style="color:#2c3e50;">📅 學期:</span>
+            <select id="semesterSelect" class="filter-select">
+                <option value="" disabled selected>讀取學期資料中...</option>
+            </select>
+        </div>
+
+        <div class="filter-group mobile-day-nav" id="dayNavButtons">
+            <button class="btn btn-day active" onclick="switchMobileDay('all', this)">全部</button>
+            <button class="btn btn-day" onclick="switchMobileDay(1, this)">週一</button>
+            <button class="btn btn-day" onclick="switchMobileDay(2, this)">週二</button>
+            <button class="btn btn-day" onclick="switchMobileDay(3, this)">週三</button>
+            <button class="btn btn-day" onclick="switchMobileDay(4, this)">週四</button>
+            <button class="btn btn-day" onclick="switchMobileDay(5, this)">週五</button>
+        </div>
+
+        <button class="filter-toggle-btn" onclick="toggleFilterSection(this)">
+            進階篩選 (班級、類別、教師)
+        </button>
+
+        <div class="filter-section" id="advancedFilters">
+            <div class="filter-group" id="class-filters">
+                <span class="filter-label">班級:</span>
+                <button class="btn active" onclick="updateFilters('class', 'all', this)">全部</button>
+                <button class="btn" onclick="updateFilters('class', '4all', this)">大四</button>
+                <button class="btn" onclick="updateFilters('class', '3a', this)">三甲</button>
+                <button class="btn" onclick="updateFilters('class', '3b', this)">三乙</button>
+                <button class="btn" onclick="updateFilters('class', '2a', this)">二甲</button>
+                <button class="btn" onclick="updateFilters('class', '2b', this)">二乙</button>
+                <button class="btn" onclick="updateFilters('class', '1a', this)">一甲</button>
+                <button class="btn" onclick="updateFilters('class', '1b', this)">一乙</button>
+            </div>
+
+            <div class="filter-group">
+                <span class="filter-label">類別:</span>
+                <button class="btn active" onclick="updateFilters('type', 'all', this)">全部</button>
+                <button class="btn" onclick="updateFilters('type', 'required', this)">必修</button>
+                <button class="btn" onclick="updateFilters('type', 'elective', this)">選修</button>
+                
+                <span class="filter-label" style="margin-left: 10px;">教師:</span>
+                <select id="teacherSelect" class="filter-select" onchange="updateFilters('teacher', this.value, this)">
+                    <option value="all">全部教師</option>
+                </select>
+            </div>
+        </div>
+    </div>
+
+    <div class="legend">
+        <span class="legend-req">必修課程</span>
+        <span class="legend-ele">選修課程</span>
+    </div>
+
+    <div id="loading-msg">資料初始化中...</div>
+
+    <div class="table-container" style="display:none;">
+        <table id="scheduleTable">
+            <thead>
+                <tr>
+                    <th>節</th>
+                    <th>時間</th>
+                    <th>一 (Mon)</th>
+                    <th>二 (Tue)</th>
+                    <th>三 (Wed)</th>
+                    <th>四 (Thu)</th>
+                    <th>五 (Fri)</th>
+                </tr>
+            </thead>
+            <tbody id="tableBody"></tbody>
+        </table>
+    </div>
+
+    <div id="mobile-schedule" class="mobile-schedule"></div>
+
+    <script>
+        let currentClassFilter = 'all';
+        let currentTypeFilter = 'all';
+        let currentTeacherFilter = 'all';
+        let currentMobileDayFilter = 'all'; 
+
+        // 1. 初始化程序：先讀 config.json，再讀對應的學期 JSON
+        window.onload = async function() {
+            try {
+                const loadingMsg = document.getElementById('loading-msg');
+                
+                // 讀取 Config 檔案
+                const configResp = await fetch('config.json');
+                if (!configResp.ok) throw new Error("找不到 config.json");
+                const semesterList = await configResp.json();
+                
+                // 建立學期選單
+                const semSelect = document.getElementById('semesterSelect');
+                semSelect.innerHTML = ''; // 清空預設值
+
+                semesterList.forEach(item => {
+                    const option = document.createElement('option');
+                    option.value = item.file; // e.g., "course_114-2.json"
+                    option.textContent = item.label; // e.g., "114學年度 第2學期"
+                    semSelect.appendChild(option);
+                });
+
+                // 監聽切換事件
+                semSelect.addEventListener('change', (e) => {
+                    loadSemesterData(e.target.value);
+                });
+
+                // 預設載入第一個學期
+                if (semesterList.length > 0) {
+                    loadSemesterData(semesterList[0].file);
+                } else {
+                    loadingMsg.innerHTML = '<span class="error-msg">設定檔中無學期資料</span>';
+                }
+
+            } catch (error) {
+                console.error('Error init:', error);
+                document.getElementById('loading-msg').innerHTML = `<span class="error-msg">無法讀取 config.json，請確認檔案位置。</span>`;
+            }
+        };
+
+        // ★ 新增：核心讀取函式
+        function loadSemesterData(filename) {
+            const loadingMsg = document.getElementById('loading-msg');
+            const tableContainer = document.querySelector('.table-container');
+            const mobileContainer = document.getElementById('mobile-schedule');
+            
+            // 顯示載入中狀態
+            loadingMsg.style.display = 'block';
+            loadingMsg.textContent = `載入課表資料中 (${filename})...`;
+            tableContainer.style.display = 'none';
+            mobileContainer.innerHTML = ''; // 清空舊資料
+            
+            fetch(filename)
+                .then(response => {
+                    if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+                    return response.json();
+                })
+                .then(data => {
+                    // 資料讀取成功
+                    loadingMsg.style.display = 'none';
+                    tableContainer.style.display = ''; 
+                    
+                    // 更新標題 (如果有 semester 欄位)
+                    // 這裡優先使用 config.json 的 label，或者使用 json 內的 metadata
+                    if(data.metadata && data.metadata.department) {
+                        // 如果 JSON 內有 metadata，使用它來更新標題
+                        const semText = data.metadata.semester || data.semester || "";
+                        document.getElementById('pageTitle').innerText = `${data.metadata.department} ${semText} 課程時間表`;
+                    } else if (data.semester) {
+                        document.getElementById('pageTitle').innerText = `課程時間表 (${data.semester})`;
+                    }
+
+                    // 重置並初始化篩選器與課表
+                    resetFilters(); 
+                    initTeacherFilter(data.courses);
+                    initSchedule(data); 
+                })
+                .catch(error => {
+                    console.error('Error loading data:', error);
+                    loadingMsg.style.display = 'block';
+                    loadingMsg.innerHTML = `<span class="error-msg">無法讀取 ${filename}。請確認檔案存在。</span>`;
+                });
+        }
+
+        // 重置篩選器狀態 (換學期時使用)
+        function resetFilters() {
+            currentClassFilter = 'all';
+            currentTypeFilter = 'all';
+            currentTeacherFilter = 'all';
+            resetMobileDayToAll();
+            
+            // UI 按鈕重置
+            document.querySelectorAll('.filter-group .btn').forEach(b => b.classList.remove('active'));
+            // 預設選中 "全部" 的按鈕
+            const defaultBtns = document.querySelectorAll('.filter-group .btn:first-of-type'); // 假設第一個都是全部
+            defaultBtns.forEach(b => b.classList.add('active'));
+            // 手機週次按鈕也要重置
+            const dayBtns = document.querySelectorAll('.btn-day');
+            dayBtns.forEach(b => b.classList.remove('active'));
+            if(dayBtns.length > 0) dayBtns[0].classList.add('active');
+        }
+
+        // 2. 手機版篩選器開關
+        function toggleFilterSection(btn) {
+            const section = document.getElementById('advancedFilters');
+            section.classList.toggle('show');
+            btn.classList.toggle('open');
+            
+            if(section.classList.contains('show')) {
+                btn.innerHTML = '收起篩選';
+            } else {
+                btn.innerHTML = '進階篩選 (班級、類別、教師)';
+            }
+        }
+
+        // 3. 初始化教師選單
+        function initTeacherFilter(courses) {
+            const select = document.getElementById('teacherSelect');
+            // ★ 重要：清空舊選項，只保留 "全部教師"
+            select.innerHTML = '<option value="all">全部教師</option>';
+
+            const teacherSet = new Set();
+            courses.forEach(course => {
+                if(course.teacher) {
+                    const teachers = course.teacher.split('/');
+                    teachers.forEach(t => teacherSet.add(t.trim()));
+                }
+            });
+            const sortedTeachers = Array.from(teacherSet).sort((a, b) => a.localeCompare(b, "zh-Hant"));
+            
+            sortedTeachers.forEach(teacher => {
+                const option = document.createElement('option');
+                option.value = teacher;
+                option.textContent = teacher;
+                select.appendChild(option);
+            });
+        }
+
+        // 4. 主排程生成
+        function initSchedule(data) {
+            const tableBody = document.getElementById('tableBody');
+            const timeSlots = data.timeSlots;
+            const coursesData = data.courses;
+            tableBody.innerHTML = '';
+
+            // --- 建立 PC 表格 ---
+            timeSlots.forEach(slot => {
+                const tr = document.createElement('tr');
+                if(slot.isLunch) tr.className = 'lunch';
+
+                const displayPeriod = slot.label ? slot.label : slot.period;
+                tr.innerHTML = `<td class="period">${displayPeriod}</td><td class="time">${slot.time}</td>`;
+
+                for(let day=1; day<=5; day++) {
+                    const td = document.createElement('td');
+                    const coursesToday = coursesData.filter(c => c.day === day && c.periods.includes(slot.period));
+                    coursesToday.forEach(course => {
+                        td.appendChild(createCourseElement(course));
+                    });
+                    tr.appendChild(td);
+                }
+                tableBody.appendChild(tr);
+            });
+
+            // --- 建立 Mobile 卡片 ---
+            generateMobileSchedule(data);
+            
+            // 建立完後立刻套用一次篩選 (預設全顯示)
+            applyCourseVisibility();
+        }
+
+        // 5. 建立課程元件 DOM
+        function createCourseElement(course) {
+            const div = document.createElement('div');
+            div.className = `course-item y${course.year} class-${course.classType}`;
+            if (course.required) div.classList.add('required');
+            
+            div.setAttribute('data-y', course.year);
+            div.setAttribute('data-c', course.classType);
+            div.setAttribute('data-teacher', course.teacher);
+
+            div.innerHTML = `
+                <span class="badge">${course.className}</span>
+                <span class="course-name">${course.name}</span>
+                <span class="teacher">${course.teacher}</span>
+                <span class="classroom">${course.room}</span>
+            `;
+            return div;
+        }
+
+        // 6. 生成手機版視圖
+        function generateMobileSchedule(data) {
+            const mobileContainer = document.getElementById('mobile-schedule');
+            mobileContainer.innerHTML = ''; 
+            const dayHeaders = ['週一', '週二', '週三', '週四', '週五'];
+            
+            for (let i = 0; i < 5; i++) {
+                const dayNum = i + 1; 
+                const dayGroup = document.createElement('div');
+                dayGroup.className = 'day-group';
+                dayGroup.setAttribute('data-day-index', dayNum);
+                
+                dayGroup.innerHTML = `<div class="day-header"><span>${dayHeaders[i]}</span></div>`;
+                const dayBody = document.createElement('div');
+                dayBody.className = 'day-body';
+
+                data.timeSlots.forEach(slot => {
+                    const courses = data.courses.filter(c => c.day === dayNum && c.periods.includes(slot.period));
+                    const row = document.createElement('div');
+                    row.className = 'mobile-row';
+                    
+                    const displayPeriod = slot.label ? slot.label : slot.period;
+                    let htmlContent = `<div class="mobile-time-col"><span class="m-period">${displayPeriod}</span><span class="m-time">${slot.time}</span></div><div class="mobile-content-col">`;
+                    
+                    row.innerHTML = htmlContent;
+                    const contentCol = row.querySelector('.mobile-content-col');
+
+                    if (courses.length > 0) {
+                        courses.forEach(c => {
+                            contentCol.appendChild(createCourseElement(c));
+                        });
+                    } else {
+                        contentCol.innerHTML = '<div class="empty-slot">無課程</div>';
+                    }
+                    row.appendChild(contentCol);
+                    dayBody.appendChild(row);
+                });
+                dayGroup.appendChild(dayBody);
+                mobileContainer.appendChild(dayGroup);
+            }
+        }
+
+        // 7. 更新篩選條件 (觸發時重置週次為全部)
+        function updateFilters(filterCategory, value, element) {
+            if (element.tagName === 'BUTTON') {
+                const group = element.parentElement;
+                group.querySelectorAll('.btn').forEach(b => b.classList.remove('active'));
+                element.classList.add('active');
+            }
+
+            if (filterCategory === 'class') currentClassFilter = value;
+            if (filterCategory === 'type') currentTypeFilter = value;
+            if (filterCategory === 'teacher') currentTeacherFilter = value;
+
+            resetMobileDayToAll();
+            applyCourseVisibility();
+        }
+
+        // 重置週次按鈕 UI 與狀態
+        function resetMobileDayToAll() {
+            currentMobileDayFilter = 'all';
+            const navButtons = document.getElementById('dayNavButtons');
+            if(navButtons) {
+                const buttons = navButtons.querySelectorAll('.btn-day');
+                buttons.forEach(btn => btn.classList.remove('active'));
+                if(buttons.length > 0) buttons[0].classList.add('active');
+            }
+        }
+
+        // 8. 執行篩選 (核心邏輯：過濾課程 -> 隱藏空的日子)
+        function applyCourseVisibility() {
+            const courses = document.querySelectorAll('.course-item');
+            
+            // Step 1: 顯示/隱藏個別課程
+            courses.forEach(course => {
+                const year = course.getAttribute('data-y');
+                const cls = course.getAttribute('data-c'); 
+                const teacher = course.getAttribute('data-teacher');
+                const isRequired = course.classList.contains('required');
+                
+                let classMatch = false;
+                let typeMatch = false;
+                let teacherMatch = false;
+
+                if (currentClassFilter === 'all') classMatch = true;
+                else if (currentClassFilter === '4all' && year === '4') classMatch = true;
+                else if (currentClassFilter === '3a' && (year === '3' && (cls === 'a' || cls === 'common'))) classMatch = true;
+                else if (currentClassFilter === '3b' && (year === '3' && (cls === 'b' || cls === 'common'))) classMatch = true;
+                else if (currentClassFilter === '2a' && (year === '2' && (cls === 'a' || cls === 'common'))) classMatch = true;
+                else if (currentClassFilter === '2b' && (year === '2' && (cls === 'b' || cls === 'common'))) classMatch = true;
+                else if (currentClassFilter === '1a' && (year === '1' && (cls === 'a' || cls === 'common'))) classMatch = true;
+                else if (currentClassFilter === '1b' && (year === '1' && (cls === 'b' || cls === 'common'))) classMatch = true;
+
+                if (currentTypeFilter === 'all') typeMatch = true;
+                else if (currentTypeFilter === 'required' && isRequired) typeMatch = true;
+                else if (currentTypeFilter === 'elective' && !isRequired) typeMatch = true;
+
+                if (currentTeacherFilter === 'all') teacherMatch = true;
+                else if (teacher && teacher.includes(currentTeacherFilter)) teacherMatch = true;
+
+                if (classMatch && typeMatch && teacherMatch) {
+                    course.classList.remove('hidden');
+                } else {
+                    course.classList.add('hidden');
+                }
+            });
+
+            // Step 2: 檢查手機版每一天是否還有可見課程
+            updateMobileDayVisibility();
+        }
+
+        // 輔助函式：隱藏沒有課程的天 (僅影響手機版)
+        function updateMobileDayVisibility() {
+            const dayGroups = document.querySelectorAll('.day-group');
+            
+            dayGroups.forEach(group => {
+                const groupDayIndex = parseInt(group.getAttribute('data-day-index'));
+                const visibleCourses = group.querySelectorAll('.course-item:not(.hidden)');
+                const hasVisibleCourse = visibleCourses.length > 0;
+
+                let shouldShowDay = false;
+
+                if (currentMobileDayFilter === 'all') {
+                    shouldShowDay = hasVisibleCourse;
+                } else {
+                    if (groupDayIndex == currentMobileDayFilter) {
+                        shouldShowDay = true; 
+                    }
+                }
+
+                if (shouldShowDay) {
+                    group.classList.remove('hidden-day');
+                    group.style.display = 'block';
+                } else {
+                    group.classList.add('hidden-day');
+                    group.style.display = 'none';
+                }
+            });
+        }
+
+        // 9. 切換手機版週次
+        function switchMobileDay(dayIndex, btn) {
+            const buttons = document.querySelectorAll('.btn-day');
+            buttons.forEach(b => b.classList.remove('active'));
+            btn.classList.add('active');
+
+            currentMobileDayFilter = dayIndex; 
+            updateMobileDayVisibility();
+        }
+    </script>
+</body>
+</html>
