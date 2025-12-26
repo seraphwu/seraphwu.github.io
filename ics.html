@@ -309,9 +309,9 @@
                     if(data.metadata && data.metadata.department) {
                         // 如果 JSON 內有 metadata，使用它來更新標題
                         const semText = data.metadata.semester || data.semester || "";
-                        document.getElementById('pageTitle').innerText = `${data.metadata.department} ${semText} 課程時間表`;
+                        document.getElementById('pageTitle').innerText = `${data.metadata.department} ${semText} 開課表`;
                     } else if (data.semester) {
-                        document.getElementById('pageTitle').innerText = `課程時間表 (${data.semester})`;
+                        document.getElementById('pageTitle').innerText = `開課表 (${data.semester})`;
                     }
 
                     // 重置並初始化篩選器與課表
@@ -585,3 +585,4 @@
 </body>
 
 </html>
+
