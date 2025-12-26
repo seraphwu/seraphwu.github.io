@@ -330,6 +330,17 @@
       "required": true
     },
     {
+      "name": "數位圖像製作實務：PS與 AI",
+      "teacher": "吳林展",
+      "room": "M304",
+      "day": 2,
+      "periods": ["8", "9"],
+      "year": "3",
+      "classType": "common",
+      "className": "傳播學院",
+      "required": true
+    }
+    {
       "name": "使用者研究與服務設計",
       "teacher": "凃佩君",
       "room": "G402",
