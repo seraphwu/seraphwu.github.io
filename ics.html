@@ -622,27 +622,27 @@
         let currentClassFilter = 'all';
         let currentTypeFilter = 'all';
         let currentTeacherFilter = 'all';
-        let currentMobileDayFilter = 'all';
-
-        // ★ 新增：全域變數用來儲存當前的時段資料，供計時器使用
+        let currentMobileDayFilter = 'all'; 
+        
+        // 全域變數用來儲存當前的時段資料，供計時器使用
         let globalTimeSlots = [];
         let timeCheckInterval = null;
 
         // 1. 初始化程序
-        window.onload = async function () {
+        window.onload = async function() {
             try {
                 const loadingMsg = document.getElementById('loading-msg');
                 const configResp = await fetch('config.json');
                 if (!configResp.ok) throw new Error("找不到 config.json");
                 const semesterList = await configResp.json();
-
+                
                 const semSelect = document.getElementById('semesterSelect');
-                semSelect.innerHTML = '';
+                semSelect.innerHTML = ''; 
 
                 semesterList.forEach(item => {
                     const option = document.createElement('option');
-                    option.value = item.file;
-                    option.textContent = item.label;
+                    option.value = item.file; 
+                    option.textContent = item.label; 
                     semSelect.appendChild(option);
                 });
 
@@ -666,12 +666,12 @@
             const loadingMsg = document.getElementById('loading-msg');
             const tableContainer = document.querySelector('.table-container');
             const mobileContainer = document.getElementById('mobile-schedule');
-
+            
             loadingMsg.style.display = 'block';
             loadingMsg.textContent = `載入課表資料中 (${filename})...`;
             tableContainer.style.display = 'none';
-            mobileContainer.innerHTML = '';
-
+            mobileContainer.innerHTML = ''; 
+            
             fetch(filename)
                 .then(response => {
                     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
@@ -679,18 +679,18 @@
                 })
                 .then(data => {
                     loadingMsg.style.display = 'none';
-                    tableContainer.style.display = '';
-
-                    if (data.metadata && data.metadata.department) {
+                    tableContainer.style.display = ''; 
+                    
+                    if(data.metadata && data.metadata.department) {
                         const semText = data.metadata.semester || data.semester || "";
                         document.getElementById('pageTitle').innerText = `${data.metadata.department} ${semText} 開課表`;
                     } else if (data.semester) {
                         document.getElementById('pageTitle').innerText = `開課表 (${data.semester})`;
                     }
 
-                    resetFilters();
+                    resetFilters(); 
                     initTeacherFilter(data.courses);
-                    initSchedule(data);
+                    initSchedule(data); 
                 })
                 .catch(error => {
                     console.error('Error loading data:', error);
@@ -704,21 +704,21 @@
             currentTypeFilter = 'all';
             currentTeacherFilter = 'all';
             resetMobileDayToAll();
-
+            
             document.querySelectorAll('.filter-group .btn').forEach(b => b.classList.remove('active'));
-            const defaultBtns = document.querySelectorAll('.filter-group .btn:first-of-type');
+            const defaultBtns = document.querySelectorAll('.filter-group .btn:first-of-type'); 
             defaultBtns.forEach(b => b.classList.add('active'));
             const dayBtns = document.querySelectorAll('.btn-day');
             dayBtns.forEach(b => b.classList.remove('active'));
-            if (dayBtns.length > 0) dayBtns[0].classList.add('active');
+            if(dayBtns.length > 0) dayBtns[0].classList.add('active');
         }
 
         function toggleFilterSection(btn) {
             const section = document.getElementById('advancedFilters');
             section.classList.toggle('show');
             btn.classList.toggle('open');
-
-            if (section.classList.contains('show')) {
+            
+            if(section.classList.contains('show')) {
                 btn.innerHTML = '收起篩選';
             } else {
                 btn.innerHTML = '進階篩選 (班級、類別、教師)';
@@ -731,13 +731,13 @@
 
             const teacherSet = new Set();
             courses.forEach(course => {
-                if (course.teacher) {
+                if(course.teacher) {
                     const teachers = course.teacher.split('/');
                     teachers.forEach(t => teacherSet.add(t.trim()));
                 }
             });
             const sortedTeachers = Array.from(teacherSet).sort((a, b) => a.localeCompare(b, "zh-Hant"));
-
+            
             sortedTeachers.forEach(teacher => {
                 const option = document.createElement('option');
                 option.value = teacher;
@@ -752,7 +752,7 @@
             const coursesData = data.courses;
             tableBody.innerHTML = '';
 
-            // ★ 儲存到全域變數，供時間檢查使用
+            // 儲存到全域變數，供時間檢查使用
             globalTimeSlots = timeSlots;
 
             // --- 建立 PC 表格 ---
@@ -760,13 +760,13 @@
                 const tr = document.createElement('tr');
                 // 加上 ID 方便後續抓取
                 tr.id = `pc-row-${index}`;
-
-                if (slot.isLunch) tr.className = 'lunch';
+                
+                if(slot.isLunch) tr.className = 'lunch';
 
                 const displayPeriod = slot.label ? slot.label : slot.period;
                 tr.innerHTML = `<td class="period">${displayPeriod}</td><td class="time">${slot.time}</td>`;
 
-                for (let day = 1; day <= 5; day++) {
+                for(let day=1; day<=5; day++) {
                     const td = document.createElement('td');
                     const coursesToday = coursesData.filter(c => c.day === day && c.periods.includes(slot.period));
                     coursesToday.forEach(course => {
@@ -779,20 +779,21 @@
 
             // --- 建立 Mobile 卡片 ---
             generateMobileSchedule(data);
-
+            
             applyCourseVisibility();
 
-            // ★ 啟動時間檢查 (立即執行一次，並設定每 30 秒更新一次)
+            // 啟動時間檢查 (立即執行一次，並設定每 30 秒更新一次)
             highlightCurrentTime();
             if (timeCheckInterval) clearInterval(timeCheckInterval);
             timeCheckInterval = setInterval(highlightCurrentTime, 30000);
         }
 
-        // ★ 新增：檢查並高亮當前時間的函式
+        // ★ 修正版：檢查並高亮當前時間 (手機版只亮當天)
         function highlightCurrentTime() {
             if (!globalTimeSlots || globalTimeSlots.length === 0) return;
 
             const now = new Date();
+            const currentDay = now.getDay(); // 0(週日) ~ 6(週六)
             const currentHour = now.getHours();
             const currentMin = now.getMinutes();
             // 將現在時間轉為分鐘數方便比對 (e.g., 08:10 = 490)
@@ -805,8 +806,6 @@
 
             globalTimeSlots.forEach((slot, index) => {
                 // 解析時間格式
-                // 支援 "08:10-09:00" 或 "08:10<br>~<br>09:00"
-                // 使用 Regex 抓出所有的數字：[08, 10, 09, 00]
                 const timeParts = slot.time.match(/(\d{1,2})/g);
 
                 if (timeParts && timeParts.length >= 4) {
@@ -818,18 +817,21 @@
                     const startTimeVal = startH * 60 + startM;
                     const endTimeVal = endH * 60 + endM;
 
-                    // 判斷現在是否在這個區間內 (包含開始，不包含結束，避免重疊)
+                    // 判斷現在是否在這個區間內
                     if (currentTimeVal >= startTimeVal && currentTimeVal < endTimeVal) {
-
-                        // 1. 高亮 PC 版的該列
+                        
+                        // 1. PC 版：保持整列高亮 (方便對照其他天)
                         const pcRow = document.getElementById(`pc-row-${index}`);
                         if (pcRow) pcRow.classList.add('current-time-slot');
 
-                        // 2. 高亮 Mobile 版的所有該時段區塊
-                        // Mobile 版因為分天顯示，會有 5 個同樣時段的 row (週一到週五)
-                        // 我們加上 class 來辨識
+                        // 2. Mobile 版：只高亮「今天」的該時段
                         const mobileRows = document.querySelectorAll(`.mobile-row-slot-${index}`);
-                        mobileRows.forEach(row => row.classList.add('current-time-slot'));
+                        mobileRows.forEach(row => {
+                            const rowDay = parseInt(row.getAttribute('data-day'));
+                            if (rowDay === currentDay) {
+                                row.classList.add('current-time-slot');
+                            }
+                        });
                     }
                 }
             });
@@ -839,7 +841,7 @@
             const div = document.createElement('div');
             div.className = `course-item y${course.year} class-${course.classType}`;
             if (course.required) div.classList.add('required');
-
+            
             div.setAttribute('data-y', course.year);
             div.setAttribute('data-c', course.classType);
             div.setAttribute('data-teacher', course.teacher);
@@ -853,17 +855,18 @@
             return div;
         }
 
+        // ★ 修正版：生成手機版視圖 (加入 data-day)
         function generateMobileSchedule(data) {
             const mobileContainer = document.getElementById('mobile-schedule');
-            mobileContainer.innerHTML = '';
+            mobileContainer.innerHTML = ''; 
             const dayHeaders = ['週一', '週二', '週三', '週四', '週五'];
-
+            
             for (let i = 0; i < 5; i++) {
-                const dayNum = i + 1;
+                const dayNum = i + 1; 
                 const dayGroup = document.createElement('div');
                 dayGroup.className = 'day-group';
                 dayGroup.setAttribute('data-day-index', dayNum);
-
+                
                 dayGroup.innerHTML = `<div class="day-header"><span>${dayHeaders[i]}</span></div>`;
                 const dayBody = document.createElement('div');
                 dayBody.className = 'day-body';
@@ -871,12 +874,13 @@
                 data.timeSlots.forEach((slot, index) => {
                     const courses = data.courses.filter(c => c.day === dayNum && c.periods.includes(slot.period));
                     const row = document.createElement('div');
-                    // ★ 加上索引 class 方便時間高亮抓取
+                    // 加入 index class 與 data-day 屬性
                     row.className = `mobile-row mobile-row-slot-${index}`;
+                    row.setAttribute('data-day', dayNum);
 
                     const displayPeriod = slot.label ? slot.label : slot.period;
                     let htmlContent = `<div class="mobile-time-col"><span class="m-period">${displayPeriod}</span><span class="m-time">${slot.time}</span></div><div class="mobile-content-col">`;
-
+                    
                     row.innerHTML = htmlContent;
                     const contentCol = row.querySelector('.mobile-content-col');
 
@@ -913,22 +917,22 @@
         function resetMobileDayToAll() {
             currentMobileDayFilter = 'all';
             const navButtons = document.getElementById('dayNavButtons');
-            if (navButtons) {
+            if(navButtons) {
                 const buttons = navButtons.querySelectorAll('.btn-day');
                 buttons.forEach(btn => btn.classList.remove('active'));
-                if (buttons.length > 0) buttons[0].classList.add('active');
+                if(buttons.length > 0) buttons[0].classList.add('active');
             }
         }
 
         function applyCourseVisibility() {
             const courses = document.querySelectorAll('.course-item');
-
+            
             courses.forEach(course => {
                 const year = course.getAttribute('data-y');
-                const cls = course.getAttribute('data-c');
+                const cls = course.getAttribute('data-c'); 
                 const teacher = course.getAttribute('data-teacher');
                 const isRequired = course.classList.contains('required');
-
+                
                 let classMatch = false;
                 let typeMatch = false;
                 let teacherMatch = false;
@@ -961,7 +965,7 @@
 
         function updateMobileDayVisibility() {
             const dayGroups = document.querySelectorAll('.day-group');
-
+            
             dayGroups.forEach(group => {
                 const groupDayIndex = parseInt(group.getAttribute('data-day-index'));
                 const visibleCourses = group.querySelectorAll('.course-item:not(.hidden)');
@@ -973,7 +977,7 @@
                     shouldShowDay = hasVisibleCourse;
                 } else {
                     if (groupDayIndex == currentMobileDayFilter) {
-                        shouldShowDay = true;
+                        shouldShowDay = true; 
                     }
                 }
 
@@ -992,7 +996,7 @@
             buttons.forEach(b => b.classList.remove('active'));
             btn.classList.add('active');
 
-            currentMobileDayFilter = dayIndex;
+            currentMobileDayFilter = dayIndex; 
             updateMobileDayVisibility();
         }
     </script>
