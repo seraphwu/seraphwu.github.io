@@ -334,7 +334,7 @@
       "teacher": "吳林展",
       "room": "M304",
       "day": 2,
-      "periods": ["8", "9"],
+      "periods": ["6", "7"],
       "year": "3",
       "classType": "common",
       "className": "傳播學院",
@@ -408,3 +408,4 @@
     }
   ]
 }
+
