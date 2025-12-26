@@ -339,7 +339,7 @@
       "classType": "common",
       "className": "傳播學院",
       "required": true
-    }
+    },
     {
       "name": "使用者研究與服務設計",
       "teacher": "凃佩君",
@@ -408,5 +408,3 @@
     }
   ]
 }
-
-
