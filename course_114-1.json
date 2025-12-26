@@ -333,9 +333,9 @@
       "name": "數位圖像製作實務：PS與 AI",
       "teacher": "吳林展",
       "room": "M304",
-      "day": 2,
+      "day": 4,
       "periods": ["6", "7"],
-      "year": "3",
+      "year": "1",
       "classType": "common",
       "className": "傳播學院",
       "required": true
@@ -408,4 +408,5 @@
     }
   ]
 }
+
 
