@@ -106,7 +106,20 @@
       "classType": "a",
       "required": true,
       "className": "二甲"
-    },
+    },{
+      "name": "數位影音剪輯實務：Premiere Pro",
+      "teacher": "林亮竹",
+      "room": "M308",
+      "day": 3,
+      "periods": [
+        "8",
+        "9"
+      ],
+      "year": "1",
+      "classType": "common",
+      "className": "傳播學院",
+      "required": false
+    }
     {
       "code": "INFO-366-01-A1",
       "name": "資訊傳播專題(三)",
