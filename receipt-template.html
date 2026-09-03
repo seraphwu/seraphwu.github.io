@@ -1,0 +1,209 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<title>收據</title>
+<style>
+  @media print {
+    .no-print { display: none; }
+    body { margin: 0; }
+  }
+  html { color-scheme: light; }
+  body {
+    font-family: "Noto Sans TC", "PingFang TC", "Microsoft JhengHei", sans-serif;
+    max-width: 700px;
+    margin: 40px auto;
+    color: #222;
+    background: #fff;
+  }
+  h1 { text-align: center; letter-spacing: 8px; margin-bottom: 4px; }
+  .company { text-align: center; margin-bottom: 24px; font-size: 14px; color: #555; }
+  .company input { border: none; text-align: center; font-size: 14px; color: #555; width: 100%; }
+  .meta { display: flex; justify-content: space-between; margin-bottom: 16px; font-size: 14px; }
+  .meta input { border: none; border-bottom: 1px solid #999; text-align: right; }
+  #sections { margin-top: 4em; }
+  .section { margin-bottom: 24px; }
+  .section-title { display: flex; align-items: center; gap: 8px; margin-bottom: 6px; }
+  .section-title input { font-weight: bold; font-size: 15px; border: none; border-bottom: 1px solid #999; flex: 1; box-sizing: border-box; }
+  .section-title button { flex-shrink: 0; }
+  table { width: 100%; border-collapse: collapse; }
+  th, td { border: 1px solid #ccc; padding: 8px; font-size: 14px; }
+  th { background: #f5f5f5; }
+  td input { width: 100%; border: none; box-sizing: border-box; }
+  td.num input { text-align: right; }
+  .row-total { text-align: right; }
+  td.del { border: none; padding: 0 0 0 4px; text-align: center; }
+  td.del button { margin: 0; padding: 2px 8px; }
+  .section-subtotal { text-align: right; font-size: 14px; margin-top: 4px; }
+  .wage-grid { display: flex; gap: 20px; font-size: 14px; margin: 8px 0; }
+  .wage-grid input { width: 90px; border: 1px solid #ccc; padding: 4px; box-sizing: border-box; }
+  .wage-result { font-size: 14px; margin-bottom: 4px; }
+  .remain-amount { font-weight: bold; }
+  .totals { display: flex; justify-content: flex-end; margin: 16px 0 32px; }
+  .totals table { width: 260px; }
+  .totals td:first-child { font-weight: bold; }
+  .sign { display: flex; justify-content: space-between; margin-top: 60px; font-size: 14px; }
+  .sign div { border-top: 1px solid #999; width: 200px; text-align: center; padding-top: 4px; }
+  button { margin: 4px; padding: 8px 16px; }
+  button:disabled { opacity: 0.65; cursor: not-allowed; }
+</style>
+</head>
+<body>
+
+<h1>收 據</h1>
+<div class="company">
+  <input type="text" placeholder="公司／個人名稱"><br>
+  <input type="text" placeholder="地址／電話／統一編號 (可留空)"><br>
+</div>
+
+<div class="meta">
+  <div>日期：<input type="date" id="date"></div>
+  <div>收據編號：<input type="text" id="no" placeholder="No."></div>
+</div>
+
+<div id="sections"></div>
+
+<div class="no-print">
+  <button onclick="addSection()">+ 新增區塊</button>
+  <button onclick="addWageSection()">+ 新增工時結算區塊</button>
+  <button onclick="bumpReceiptNo(); window.print()">列印 / 存成 PDF</button>
+</div>
+
+<div class="totals">
+  <table>
+    <tr><td>合計 NT$</td><td class="row-total" id="grandTotal">0</td></tr>
+  </table>
+</div>
+
+<div class="sign">
+  <div>經手人</div>
+  <div>收款人簽章</div>
+</div>
+
+<script>
+const rowHTML = `
+  <td><input type="text"></td>
+  <td class="num"><input type="number" class="qty" value="1"></td>
+  <td class="num"><input type="number" class="price" value="0"></td>
+  <td class="row-total">0</td>
+  <td class="del no-print"><button onclick="removeRow(this)" disabled>－</button></td>`;
+
+function syncDelButtons(tbody) {
+  const disabled = tbody.rows.length <= 1;
+  tbody.querySelectorAll('td.del button').forEach(b => b.disabled = disabled);
+}
+
+function addRow(btn) {
+  const tbody = btn.closest('.section').querySelector('tbody');
+  const tr = document.createElement('tr');
+  tr.innerHTML = rowHTML;
+  tbody.appendChild(tr);
+  syncDelButtons(tbody);
+}
+
+function removeRow(btn) {
+  const tbody = btn.closest('tbody');
+  if (tbody.rows.length > 1) btn.closest('tr').remove();
+  syncDelButtons(tbody);
+  recalc();
+}
+
+function removeSection(btn) {
+  btn.closest('.section').remove();
+  recalc();
+}
+
+const itemSectionHTML = `
+  <div class="section-title"><input type="text" placeholder="區塊名稱（可留空，例如 A部分）"><button class="no-print" onclick="removeSection(this)">刪除區塊</button></div>
+  <table class="items">
+    <thead>
+      <tr><th>品項</th><th style="width:60px">數量</th><th style="width:100px">單價</th><th style="width:100px">小計</th><th class="no-print" style="width:30px"></th></tr>
+    </thead>
+    <tbody><tr>${rowHTML}</tr></tbody>
+  </table>
+  <div class="no-print"><button onclick="addRow(this)">+ 新增一列</button></div>
+  <div class="section-subtotal">小計 NT$ <span class="sub-total">0</span></div>`;
+
+function addSection() {
+  const div = document.createElement('div');
+  div.className = 'section';
+  div.innerHTML = itemSectionHTML;
+  document.getElementById('sections').appendChild(div);
+  div.scrollIntoView({ behavior: 'smooth', block: 'center' });
+  recalc();
+}
+
+const wageSectionHTML = `
+  <div class="section-title"><input type="text" placeholder="區塊名稱（例如 工讀生工時結算）"><button class="no-print" onclick="removeSection(this)">刪除區塊</button></div>
+  <div class="wage-grid">
+    <label>前次剩餘 NT$<br><input type="number" class="prev-remain" value="0"></label>
+    <label>本次新增額度 NT$<br><input type="number" class="add-budget" value="0"></label>
+    <label>時薪 NT$/時<br><input type="number" class="rate" value="0"></label>
+    <label>工時（小時）<br><input type="number" class="hours" value="0"></label>
+  </div>
+  <div class="wage-result">
+    已領 NT$ <span class="used-amount">0</span>
+    剩餘 NT$ <span class="remain-amount">0</span>（填入下次的「前次剩餘」）
+  </div>
+  <div class="section-subtotal">小計 NT$ <span class="sub-total">0</span></div>`;
+
+function addWageSection() {
+  const div = document.createElement('div');
+  div.className = 'section wage-section';
+  div.innerHTML = wageSectionHTML;
+  document.getElementById('sections').appendChild(div);
+  div.scrollIntoView({ behavior: 'smooth', block: 'center' });
+  recalc();
+}
+
+function recalc() {
+  let grand = 0;
+  document.querySelectorAll('.section').forEach(section => {
+    let sub = 0;
+    if (section.classList.contains('wage-section')) {
+      const prevRemain = parseFloat(section.querySelector('.prev-remain').value) || 0;
+      const addBudget = parseFloat(section.querySelector('.add-budget').value) || 0;
+      const rate = parseFloat(section.querySelector('.rate').value) || 0;
+      const hours = parseFloat(section.querySelector('.hours').value) || 0;
+      const used = rate * hours;
+      section.querySelector('.used-amount').textContent = used.toLocaleString();
+      section.querySelector('.remain-amount').textContent = (prevRemain + addBudget - used).toLocaleString();
+      sub = used;
+    } else {
+      section.querySelectorAll('tbody tr').forEach(tr => {
+        const qty = parseFloat(tr.querySelector('.qty').value) || 0;
+        const price = parseFloat(tr.querySelector('.price').value) || 0;
+        const rowSum = qty * price;
+        tr.querySelector('.row-total').textContent = rowSum.toLocaleString();
+        sub += rowSum;
+      });
+    }
+    section.querySelector('.sub-total').textContent = sub.toLocaleString();
+    grand += sub;
+  });
+  document.getElementById('grandTotal').textContent = grand.toLocaleString();
+}
+
+document.body.addEventListener('input', e => {
+  if (['qty', 'price', 'prev-remain', 'add-budget', 'rate', 'hours'].some(c => e.target.classList.contains(c))) recalc();
+});
+document.getElementById('date').valueAsDate = new Date();
+
+// ponytail: 編號用 localStorage 記當天流水號，只在同一台電腦/瀏覽器有效，換機器會歸零
+function todayKey() {
+  const d = new Date();
+  return `${d.getFullYear()}${String(d.getMonth() + 1).padStart(2, '0')}${String(d.getDate()).padStart(2, '0')}`;
+}
+function bumpReceiptNo() {
+  const key = 'receiptSeq-' + todayKey();
+  localStorage.setItem(key, (parseInt(localStorage.getItem(key) || '0', 10) + 1).toString());
+}
+(function initReceiptNo() {
+  const key = 'receiptSeq-' + todayKey();
+  const next = parseInt(localStorage.getItem(key) || '0', 10) + 1;
+  document.getElementById('no').value = `${todayKey()}-${String(next).padStart(3, '0')}`;
+})();
+</script>
+
+</body>
+</html>
