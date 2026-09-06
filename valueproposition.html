@@ -1,0 +1,402 @@
+<title>產品服務價值主張拆分</title>
+<style>
+  :root {
+    --ground: #f7f4ee;
+    --surface: #ffffff;
+    --ink: #2b2620;
+    --ink-soft: #6b6255;
+    --ink-faint: #948a78;
+    --line: #ddd4c0;
+    --line-soft: #eae3d3;
+    --product: #a8672b;
+    --product-ink: #7a4a1e;
+    --product-soft: #f0e3ce;
+    --service: #2f6e58;
+    --service-ink: #1f4d3d;
+    --service-soft: #dcebe3;
+  }
+
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) {
+      --ground: #1c1914;
+      --surface: #242019;
+      --ink: #ece5d6;
+      --ink-soft: #b3a996;
+      --ink-faint: #8a8071;
+      --line: #3d372c;
+      --line-soft: #2e2921;
+      --product: #d99a52;
+      --product-ink: #f0c088;
+      --product-soft: #3a2e1c;
+      --service: #6cb99a;
+      --service-ink: #9ad9bd;
+      --service-soft: #1c332b;
+    }
+  }
+
+  :root[data-theme="dark"] {
+    --ground: #1c1914;
+    --surface: #242019;
+    --ink: #ece5d6;
+    --ink-soft: #b3a996;
+    --ink-faint: #8a8071;
+    --line: #3d372c;
+    --line-soft: #2e2921;
+    --product: #d99a52;
+    --product-ink: #f0c088;
+    --product-soft: #3a2e1c;
+    --service: #6cb99a;
+    --service-ink: #9ad9bd;
+    --service-soft: #1c332b;
+  }
+
+  * { box-sizing: border-box; }
+
+  body {
+    background: var(--ground);
+    color: var(--ink);
+    font-family: "Noto Sans TC", "PingFang TC", "Microsoft JhengHei", sans-serif;
+    line-height: 1.75;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  .page {
+    max-width: 780px;
+    margin: 0 auto;
+    padding: 64px 24px 96px;
+  }
+
+  h1, h2, h3 {
+    font-family: "Noto Serif TC", "Songti TC", serif;
+    text-wrap: balance;
+    font-weight: 600;
+    color: var(--ink);
+    margin: 0;
+  }
+
+  header.masthead {
+    border-bottom: 3px double var(--line);
+    padding-bottom: 28px;
+    margin-bottom: 12px;
+  }
+
+  .kicker {
+    font-family: "IBM Plex Mono", ui-monospace, monospace;
+    font-size: 0.72rem;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--ink-faint);
+    margin-bottom: 14px;
+  }
+
+  h1 {
+    font-size: clamp(1.7rem, 4vw, 2.3rem);
+    line-height: 1.35;
+  }
+
+  .subtitle {
+    margin-top: 12px;
+    color: var(--ink-soft);
+    font-size: 0.98rem;
+    max-width: 62ch;
+  }
+
+  .method-note {
+    margin: 36px 0 48px;
+    padding: 20px 22px;
+    background: var(--surface);
+    border: 1px solid var(--line-soft);
+    border-radius: 3px;
+    font-size: 0.92rem;
+    color: var(--ink-soft);
+  }
+
+  .method-note strong { color: var(--ink); font-weight: 600; }
+
+  .legend {
+    display: flex;
+    gap: 24px;
+    margin-top: 16px;
+    flex-wrap: wrap;
+  }
+
+  .legend-item {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 0.85rem;
+    color: var(--ink-soft);
+  }
+
+  .swatch {
+    width: 11px;
+    height: 11px;
+    border-radius: 2px;
+    flex: none;
+  }
+  .swatch.product { background: var(--product); }
+  .swatch.service { background: var(--service); }
+
+  section.institution {
+    margin-top: 56px;
+    padding-top: 40px;
+    border-top: 1px solid var(--line);
+  }
+
+  section.institution:first-of-type {
+    margin-top: 40px;
+  }
+
+  .inst-head {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: 16px;
+    flex-wrap: wrap;
+    margin-bottom: 4px;
+  }
+
+  .inst-head h2 {
+    font-size: 1.4rem;
+  }
+
+  .inst-url {
+    font-family: "IBM Plex Mono", ui-monospace, monospace;
+    font-size: 0.78rem;
+    color: var(--ink-faint);
+    white-space: nowrap;
+  }
+
+  .columns {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 28px;
+    margin-top: 24px;
+  }
+
+  @media (max-width: 620px) {
+    .columns { grid-template-columns: 1fr; }
+  }
+
+  .col {
+    background: var(--surface);
+    border: 1px solid var(--line-soft);
+    border-radius: 4px;
+    padding: 20px 22px 22px;
+  }
+
+  .col-label {
+    display: inline-flex;
+    align-items: center;
+    gap: 7px;
+    font-family: "IBM Plex Mono", ui-monospace, monospace;
+    font-size: 0.72rem;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    padding: 3px 9px 4px;
+    border-radius: 999px;
+    margin-bottom: 14px;
+  }
+
+  .col.product .col-label {
+    background: var(--product-soft);
+    color: var(--product-ink);
+  }
+  .col.service .col-label {
+    background: var(--service-soft);
+    color: var(--service-ink);
+  }
+
+  .col ul {
+    margin: 0;
+    padding-left: 1.15em;
+  }
+
+  .col li {
+    margin-bottom: 10px;
+    font-size: 0.94rem;
+    color: var(--ink);
+  }
+  .col li:last-child { margin-bottom: 0; }
+  .col li .note { color: var(--ink-soft); }
+
+  .highlight {
+    margin-top: 22px;
+    padding: 14px 18px;
+    border-left: 3px solid var(--ink-faint);
+    background: var(--line-soft);
+    border-radius: 0 3px 3px 0;
+    font-size: 0.92rem;
+    color: var(--ink-soft);
+  }
+
+  .highlight strong { color: var(--ink); font-weight: 600; }
+
+  table.compare {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 20px;
+    font-size: 0.94rem;
+  }
+
+  table.compare th {
+    text-align: left;
+    font-family: "IBM Plex Mono", ui-monospace, monospace;
+    font-size: 0.72rem;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--ink-faint);
+    padding: 0 16px 10px 0;
+    border-bottom: 1px solid var(--line);
+  }
+
+  table.compare td {
+    padding: 14px 16px 14px 0;
+    border-bottom: 1px solid var(--line-soft);
+    vertical-align: top;
+  }
+
+  table.compare tr:last-child td { border-bottom: none; }
+
+  table.compare td.inst {
+    font-family: "Noto Serif TC", serif;
+    font-weight: 600;
+    white-space: nowrap;
+    width: 1%;
+  }
+
+  footer.colophon {
+    margin-top: 64px;
+    padding-top: 20px;
+    border-top: 1px solid var(--line);
+    font-size: 0.8rem;
+    color: var(--ink-faint);
+    display: flex;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 8px;
+  }
+</style>
+
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Serif+TC:wght@500;600;700&family=Noto+Sans+TC:wght@400;500;700&family=IBM+Plex+Mono:wght@400;500&display=swap">
+
+<div class="page">
+
+  <header class="masthead">
+    <div class="kicker">Agriculture Value Proposition Study · 2026-09-06</div>
+    <h1>農業部研究推廣機構<br>產品／服務價值主張拆分分析</h1>
+    <p class="subtitle">臺中區農業改良場、農業試驗所、臺南區農業改良場三個官網，把既有證據改用「產品」與「服務」兩軸重新切一次。</p>
+  </header>
+
+  <div class="method-note">
+    <strong>分法：</strong>產品價值主張＝具體、可指認的研發產出（品種、技術、專利、出版品）；服務價值主張＝跟人互動、持續進行的服務關係（診斷、諮詢、教育、應變、陪伴）。
+    <div class="legend">
+      <div class="legend-item"><span class="swatch product"></span>產品價值主張</div>
+      <div class="legend-item"><span class="swatch service"></span>服務價值主張</div>
+    </div>
+  </div>
+
+  <section class="institution">
+    <div class="inst-head">
+      <h2>臺中區農業改良場</h2>
+      <span class="inst-url">tcdares.gov.tw</span>
+    </div>
+    <div class="columns">
+      <div class="col product">
+        <span class="col-label">產品</span>
+        <ul>
+          <li>十四項研究領域的技術產出（稻作到農村生活都有）<br><span class="note">沒有具名品種可以指認</span></li>
+          <li>出版刊物（年報、研究彙報、技術專刊）</li>
+          <li>病蟲害／土壤肥力診斷的標準作業程序文件本身</li>
+        </ul>
+      </div>
+      <div class="col service">
+        <span class="col-label">服務</span>
+        <ul>
+          <li>常見問答14類，答案給到具體農藥劑量、稀釋倍率、施藥週期<br><span class="note">服務主張裡證據最扎實的一項</span></li>
+          <li>農民暨消費者服務中心——專線、信箱、首長信箱承諾一週內回覆</li>
+          <li>LINE病蟲害諮詢</li>
+          <li>食農教育、推廣活動</li>
+          <li>天然災害現地照相APP、農業ESG專區<br><span class="note">社會關懷類，證據薄弱</span></li>
+        </ul>
+      </div>
+    </div>
+  </section>
+
+  <section class="institution">
+    <div class="inst-head">
+      <h2>農業試驗所</h2>
+      <span class="inst-url">tari.gov.tw</span>
+    </div>
+    <div class="columns">
+      <div class="col product">
+        <span class="col-label">產品</span>
+        <ul>
+          <li>新育成品種，具名且量多<br><span class="note">水稻台農85號、馬鈴薯台農4號、咖啡台農1號等</span></li>
+          <li>技術授權，同樣具名<br><span class="note">微生物肥料菌株、病毒核酸檢測系統等</span></li>
+          <li>專利、品種權登記</li>
+          <li>出版刊物</li>
+        </ul>
+      </div>
+      <div class="col service">
+        <span class="col-label">服務</span>
+        <ul>
+          <li>農機測定服務</li>
+          <li>病蟲害及土壤肥力診斷服務（有申請表SOP）</li>
+          <li>食農教育——多校插秧割稻活動</li>
+          <li>技轉輔導、創新育成中心<br><span class="note">協助產業化的陪伴型服務</span></li>
+          <li>意見信箱、澄清稿、農產品食安服務專區、首頁置頂反詐騙聲明<br><span class="note">信譽維護做得最制度化</span></li>
+        </ul>
+      </div>
+    </div>
+    <div class="highlight"><strong>看點：</strong>農業試驗所是三家裡「產品」證據最強的——最新消息版面連續4筆都是技轉授權公告，產品產出感遠比另兩家具體。</div>
+  </section>
+
+  <section class="institution">
+    <div class="inst-head">
+      <h2>臺南區農業改良場</h2>
+      <span class="inst-url">tndais.gov.tw</span>
+    </div>
+    <div class="columns">
+      <div class="col product">
+        <span class="col-label">產品</span>
+        <ul>
+          <li>育成品種、農業主題館11品項<br><span class="note">偏地方作物導向，柑橘／芒果／落花生等</span></li>
+          <li>技術移轉、專利、品種權</li>
+          <li>出版刊物5種</li>
+        </ul>
+      </div>
+      <div class="col service">
+        <span class="col-label">服務</span>
+        <ul>
+          <li>農友暨消費者服務——有逐字任務宣言：「積極主動的服務精神……使生產與消費並重，達成產銷平衡目標」<br><span class="note">三家裡唯一寫出成立宗旨的</span></li>
+          <li>主動颱風防災指導文章，給到排水／抽水機／溫室門窗捲揚塑膠布等操作細節<br><span class="note">服務主張裡證據最扎實的一項</span></li>
+          <li>病蟲害線上診斷、土壤速測、LINE@諮詢</li>
+          <li>農業教育訓練、學習護照</li>
+          <li>田媽媽專區（農村婦女經濟培力）、有機友善農業、休閒農業輔導</li>
+        </ul>
+      </div>
+    </div>
+    <div class="highlight"><strong>看點：</strong>臺南區農業改良場是三家裡「服務」證據最強的——不只服務項目多，還有機構自己寫的任務宣言撐腰，社會面向（田媽媽）也是其他兩家沒有的。</div>
+  </section>
+
+  <section class="institution">
+    <h2 style="font-size:1.15rem; margin-bottom:4px;">三家對照</h2>
+    <table class="compare">
+      <thead>
+        <tr><th>機構</th><th>主打</th></tr>
+      </thead>
+      <tbody>
+        <tr><td class="inst">農業試驗所</td><td>產品掛帥——研發輸出是門面</td></tr>
+        <tr><td class="inst">臺南區農業改良場</td><td>服務掛帥——陪伴農民、主動應變是門面</td></tr>
+        <tr><td class="inst">臺中區農業改良場</td><td>兩邊都有做，但都不是最突出的那個</td></tr>
+      </tbody>
+    </table>
+  </section>
+
+  <footer class="colophon">
+    <span>依 lin-knowledge-claims 技能之產品／服務價值主張分法整理</span>
+    <span>2026-09-06</span>
+  </footer>
+
+</div>
