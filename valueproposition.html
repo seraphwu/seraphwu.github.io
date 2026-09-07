@@ -50,7 +50,9 @@
     --service-soft: #1c332b;
   }
 
-  * { box-sizing: border-box; }
+  * {
+    box-sizing: border-box;
+  }
 
   body {
     background: var(--ground);
@@ -66,7 +68,9 @@
     padding: 64px 24px 96px;
   }
 
-  h1, h2, h3 {
+  h1,
+  h2,
+  h3 {
     font-family: "Noto Serif TC", "Songti TC", serif;
     text-wrap: balance;
     font-weight: 600;
@@ -111,7 +115,10 @@
     color: var(--ink-soft);
   }
 
-  .method-note strong { color: var(--ink); font-weight: 600; }
+  .method-note strong {
+    color: var(--ink);
+    font-weight: 600;
+  }
 
   .legend {
     display: flex;
@@ -134,8 +141,14 @@
     border-radius: 2px;
     flex: none;
   }
-  .swatch.product { background: var(--product); }
-  .swatch.service { background: var(--service); }
+
+  .swatch.product {
+    background: var(--product);
+  }
+
+  .swatch.service {
+    background: var(--service);
+  }
 
   section.institution {
     margin-top: 56px;
@@ -175,7 +188,9 @@
   }
 
   @media (max-width: 620px) {
-    .columns { grid-template-columns: 1fr; }
+    .columns {
+      grid-template-columns: 1fr;
+    }
   }
 
   .col {
@@ -202,6 +217,7 @@
     background: var(--product-soft);
     color: var(--product-ink);
   }
+
   .col.service .col-label {
     background: var(--service-soft);
     color: var(--service-ink);
@@ -217,8 +233,14 @@
     font-size: 0.94rem;
     color: var(--ink);
   }
-  .col li:last-child { margin-bottom: 0; }
-  .col li .note { color: var(--ink-soft); }
+
+  .col li:last-child {
+    margin-bottom: 0;
+  }
+
+  .col li .note {
+    color: var(--ink-soft);
+  }
 
   .highlight {
     margin-top: 22px;
@@ -230,7 +252,10 @@
     color: var(--ink-soft);
   }
 
-  .highlight strong { color: var(--ink); font-weight: 600; }
+  .highlight strong {
+    color: var(--ink);
+    font-weight: 600;
+  }
 
   table.compare {
     width: 100%;
@@ -256,7 +281,9 @@
     vertical-align: top;
   }
 
-  table.compare tr:last-child td { border-bottom: none; }
+  table.compare tr:last-child td {
+    border-bottom: none;
+  }
 
   table.compare td.inst {
     font-family: "Noto Serif TC", serif;
@@ -278,7 +305,8 @@
   }
 </style>
 
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Serif+TC:wght@500;600;700&family=Noto+Sans+TC:wght@400;500;700&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<link rel="stylesheet"
+  href="https://fonts.googleapis.com/css2?family=Noto+Serif+TC:wght@500;600;700&family=Noto+Sans+TC:wght@400;500;700&family=IBM+Plex+Mono:wght@400;500&display=swap">
 
 <div class="page">
 
@@ -384,12 +412,24 @@
     <h2 style="font-size:1.15rem; margin-bottom:4px;">三家對照</h2>
     <table class="compare">
       <thead>
-        <tr><th>機構</th><th>主打</th></tr>
+        <tr>
+          <th>機構</th>
+          <th>主打</th>
+        </tr>
       </thead>
       <tbody>
-        <tr><td class="inst">農業試驗所</td><td>產品掛帥——研發輸出是門面</td></tr>
-        <tr><td class="inst">臺南區農業改良場</td><td>服務掛帥——陪伴農民、主動應變是門面</td></tr>
-        <tr><td class="inst">臺中區農業改良場</td><td>兩邊都有做，但都不是最突出的那個</td></tr>
+        <tr>
+          <td class="inst">農業試驗所</td>
+          <td>產品掛帥——研發輸出是門面</td>
+        </tr>
+        <tr>
+          <td class="inst">臺南區農業改良場</td>
+          <td>服務掛帥——陪伴農民、主動應變是門面</td>
+        </tr>
+        <tr>
+          <td class="inst">臺中區農業改良場</td>
+          <td>兩邊兼具</td>
+        </tr>
       </tbody>
     </table>
   </section>
